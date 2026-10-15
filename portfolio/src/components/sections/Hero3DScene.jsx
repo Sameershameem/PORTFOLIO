@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { advance, Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Environment, Lightformer, PerformanceMonitor, useTexture } from '@react-three/drei'
+import { Environment, Lightformer, useTexture } from '@react-three/drei'
 import {
   BoxGeometry,
   ExtrudeGeometry,
@@ -716,7 +716,8 @@ export default function Hero3DScene({ wrapperRef, heroStageRef, heroPinRef, dock
     [],
   )
   const [inView, setInView] = useState(true)
-  const [dpr, setDpr] = useState(LITE ? 1.5 : 2)
+  // Always render at the screen's real sharpness (capped at 2x) so the statue never softens.
+  const [dpr] = useState(() => Math.min(window.devicePixelRatio || 1, 2))
   const containerRef = useRef(null)
   const cursorRef = useCursor(reducedMotion)
   const layoutRef = useRef(null)
@@ -774,7 +775,7 @@ export default function Hero3DScene({ wrapperRef, heroStageRef, heroPinRef, dock
   return (
     <div className="chess-canvas" ref={containerRef}>
       <Canvas
-        dpr={[1, dpr]}
+        dpr={dpr}
         frameloop="never"
         camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV, near: 0.1, far: 100 }}
         gl={{ alpha: true, antialias: true, powerPreference: 'high-performance', stencil: false }}
@@ -792,8 +793,6 @@ export default function Hero3DScene({ wrapperRef, heroStageRef, heroPinRef, dock
           dockRefs={dockRefs}
           reducedMotion={reducedMotion}
         />
-        {/* Drop resolution on devices that can't hold the frame rate. */}
-        <PerformanceMonitor onDecline={() => setDpr((value) => Math.max(1, value - 0.5))} />
         <CursorSmoother cursorRef={cursorRef} />
         <Statue layoutRef={layoutRef} introRef={introRef} reducedMotion={reducedMotion} />
         <MarkKing layoutRef={layoutRef} introRef={introRef} loaderRef={loaderRef} reducedMotion={reducedMotion} />

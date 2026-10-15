@@ -3016,3 +3016,11 @@ a.cx-row:hover .cx-row-arrow {
     overflow-wrap: anywhere;
   }
 }
+
+/* Phones: a longer hero scroll so the burst plays out at a readable pace. */
+@media (max-width: 900px) and (prefers-reduced-motion: no-preference) {
+  .hero-stage {
+    height: 380svh;
+    min-height: 2800px;
+  }
+}

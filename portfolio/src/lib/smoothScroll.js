@@ -28,8 +28,8 @@ export function startSmoothScroll() {
       lerp: 0.085, // heavier, more "weighted" glide than the default 0.1
       wheelMultiplier: 0.9,
       syncTouch: true, // JS-driven touch scroll keeps WebGL locked to the page on phones
-      syncTouchLerp: 0.085,
-      touchInertiaMultiplier: 28,
+      syncTouchLerp: 0.07, // softer follow on touch
+      touchInertiaMultiplier: 18, // less flick momentum so the hero story isn't skipped
     })
     if (locked) lenis.stop()
   }
