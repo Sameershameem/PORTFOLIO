@@ -5,15 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#f4f3ef" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Fonts load without blocking the first paint (the loader uses a system-font fallback). -->
     <link
-      rel="stylesheet"
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap" />
+    </noscript>
     <!--seo:start-->
-    <title data-prerender>Sameer Shameem — Marketing, Content &amp; Digital Experiences</title>
-    <meta data-prerender name="description" content="Sameer Shameem is a marketing specialist, content creator, performance marketer, copywriter, and emerging vibe coder." />
+    <title data-prerender>Sameer Shameem — Performance Marketing &amp; Digital Marketing Executive</title>
+    <meta data-prerender name="description" content="Sameer Shameem is a performance marketing and digital marketing executive in Aligarh, India — Meta Ads, Google Search Ads, content strategy and short-form video." />
     <!--seo:end-->
     <style>
       /* Intro loader — inlined so it paints on the very first frame (see Loader.jsx). */
@@ -45,7 +54,7 @@
       }
       .kl-bar { position: relative; display: block; width: 140px; height: 1px; overflow: hidden; background: rgba(29, 30, 27, .14); }
       .kl-bar > span { position: absolute; inset: 0; background: #1d1e1b; transform: scaleX(0); transform-origin: 0 50%; }
-      .kl-label { color: #77766f; font-size: 9px; font-weight: 700; letter-spacing: .32em; text-transform: uppercase; white-space: nowrap; }
+      .kl-label { color: #62615a; font-size: 9px; font-weight: 700; letter-spacing: .32em; text-transform: uppercase; white-space: nowrap; }
       .kl-count { margin-left: .9em; color: #1d1e1b; font-variant-numeric: tabular-nums; }
     </style>
     <noscript><style>#site-loader { display: none; }</style></noscript>
@@ -66,7 +75,7 @@
     <div id="root"></div>
     <noscript>
       <p style="padding:24px;font-family:sans-serif">
-        Sameer Shameem — marketing specialist, content creator, performance marketer and copywriter.
+        Sameer Shameem — performance marketing and digital marketing executive, Aligarh, India.
         Please enable JavaScript to view the full portfolio.
       </p>
     </noscript>

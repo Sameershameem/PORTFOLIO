@@ -9,8 +9,6 @@ const ProjectDetail = lazy(() => import('./pages/ProjectDetail.jsx'))
 const Services = lazy(() => import('./pages/Services.jsx'))
 const About = lazy(() => import('./pages/About.jsx'))
 const Contact = lazy(() => import('./pages/Contact.jsx'))
-const Blog = lazy(() => import('./pages/Blog.jsx'))
-const BlogPost = lazy(() => import('./pages/BlogPost.jsx'))
 const NotFound = lazy(() => import('./pages/NotFound.jsx'))
 
 export default function App() {
@@ -36,8 +34,6 @@ export default function App() {
         <Route path="/services" element={<Services />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/:slug" element={<BlogPost />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

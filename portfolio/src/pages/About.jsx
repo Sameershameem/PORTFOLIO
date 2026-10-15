@@ -1,8 +1,9 @@
 import PageLayout from '../components/layout/PageLayout.jsx'
 import Button from '../components/ui/Button.jsx'
 import SkillsGrid from '../components/sections/SkillsGrid.jsx'
-import Timeline from '../components/sections/Timeline.jsx'
 import CTA from '../components/sections/CTA.jsx'
+import ExperienceCounter from '../components/ui/ExperienceCounter.jsx'
+import { profile } from '../data/profile.js'
 import SEO from '../components/ui/SEO.jsx'
 import { pageMeta } from '../data/seo.js'
 import portrait from '../assets/images/hero-portrait.webp'
@@ -49,16 +50,15 @@ export default function About() {
 
             <div className="space-y-5 text-base sm:text-lg text-neutral-800 leading-relaxed font-normal">
               <p>
-                I&apos;m <strong>Sameer Shameem</strong> — a marketing specialist,
-                content creator, performance marketer, and copywriter with a growing
-                passion for vibe coding. I enjoy connecting creative ideas with
-                strategic thinking and using modern AI-powered tools to bring digital
-                experiences to life.
+                I&apos;m <strong>Sameer Shameem</strong> — a {profile.title.toLowerCase()} based
+                in {profile.location}. I work across content strategy, social media marketing,
+                paid advertising and client management for brands in hospitality, fashion,
+                skincare, education and lifestyle.
               </p>
               <p>
-                From developing a compelling campaign message to building an
-                interactive web experience, I like being involved in the process of
-                turning an idea into something real.
+                I&apos;ve worked with 103 clients — taking organic content from 500 to 429K
+                views and lifting engagement by 920% — and I build with modern AI-powered
+                tools on the side, like this website.
               </p>
             </div>
 
@@ -67,9 +67,18 @@ export default function About() {
               <Button to="/contact" variant="primary">
                 Let’s talk ↗
               </Button>
+              <a
+                href={profile.cv}
+                download="Sameer-Shameem-CV.pdf"
+                className="text-sm font-bold text-brand-ink underline underline-offset-4 hover:text-brand-olive transition-colors"
+              >
+                Download CV ↓
+              </a>
             </div>
           </div>
         </section>
+
+        <ExperienceCounter className="mb-16 md:mb-24" />
 
         {/* Quick Facts Strip */}
         <section className="p-6 sm:p-8 bg-white border border-neutral-200 mb-16 md:mb-24">
@@ -90,8 +99,6 @@ export default function About() {
         {/* Skills & Toolkit Section */}
         <SkillsGrid />
 
-        {/* Timeline / Experience History */}
-        <Timeline />
 
         {/* Closing CTA */}
         <CTA

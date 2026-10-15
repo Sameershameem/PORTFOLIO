@@ -1,8 +1,7 @@
 import { useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import navLinks from '../../data/navLinks.js'
-import socials from '../../data/socials.js'
-import { contactEmail } from '../../data/contactDetails.js'
+import { contactEmail, contactSocials } from '../../data/contactDetails.js'
 
 export default function MobileMenu({ isOpen, onClose }) {
   // Lock body scroll and listen for Escape key
@@ -81,15 +80,15 @@ export default function MobileMenu({ isOpen, onClose }) {
       {/* Footer Info & Socials */}
       <div className="relative z-10 pt-6 border-t border-neutral-800 flex flex-wrap items-center justify-between gap-4 text-xs font-bold uppercase tracking-wider text-neutral-400">
         <div className="flex items-center gap-4">
-          {socials.map((s) => (
+          {contactSocials.map((s) => (
             <a
-              key={s.name}
-              href={s.href || s.url}
+              key={s.label}
+              href={s.href}
               target="_blank"
               rel="noreferrer"
               className="hover:text-brand-yellow transition-colors"
             >
-              {s.name}
+              {s.label}
             </a>
           ))}
         </div>

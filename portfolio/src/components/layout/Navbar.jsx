@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import navLinks from '../../data/navLinks.js'
 import MobileMenu from './MobileMenu.jsx'
+import { KING_PATH, KING_VIEWBOX } from '../../data/chess.js'
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -11,6 +12,10 @@ export default function Navbar() {
       <header className="site-header">
         <Link className="wordmark" to="/" aria-label="SAMEER home">
           SAMEER<span className="text-brand-yellow">.</span>
+          {/* Floating king mark. On the home page the loader's 3D king lands exactly here. */}
+          <svg className="wordmark-king" viewBox={KING_VIEWBOX} aria-hidden="true">
+            <path d={KING_PATH} />
+          </svg>
         </Link>
         <button
           className="menu-toggle"

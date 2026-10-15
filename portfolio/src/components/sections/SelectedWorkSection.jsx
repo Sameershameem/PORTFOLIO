@@ -8,7 +8,10 @@ function ProjectMedia({ project, index }) {
       <>
         <span className="work-art-index" aria-hidden="true">0{index + 1}</span>
         <span className="work-art-shape" aria-hidden="true" />
-        <span className="work-art-label" aria-hidden="true">CASE STUDY<br />IN THE MAKING</span>
+        <span className="work-art-label" aria-hidden="true">
+          {project.metrics?.[0]?.value ?? 'Case study'}
+          {project.metrics?.[0] && <small>{project.metrics[0].label}</small>}
+        </span>
       </>
     )
   }
@@ -46,32 +49,32 @@ export default function SelectedWorkSection() {
     >
       <div className="experience-section-head">
         <div>
-          <p className="experience-kicker">Selected work</p>
-          <h2 className="experience-heading" id="work-heading">Ideas, in progress.</h2>
+          <p className="experience-kicker" data-reveal="up">Selected work</p>
+          <h2 className="experience-heading" data-reveal="lines" id="work-heading">Work that moved the numbers.</h2>
         </div>
-        <Link className="experience-text-link" to="/work">
+        <Link className="experience-text-link" data-reveal="up" data-magnetic to="/work">
           All case studies <span aria-hidden="true">↗</span>
         </Link>
       </div>
-      <p className="work-intro">
-        A space for the thinking, making, and learning behind each project.
-        Details will be added as verified case studies are ready to share.
+      <p className="work-intro" data-reveal="up">
+        Short-form growth, UGC and performance campaigns for brands in hospitality,
+        fashion, skincare, education and lifestyle.
       </p>
 
       <div className="work-grid">
         {projects.slice(0, 3).map((project, index) => (
           <article className={`work-card work-card-${index + 1}`} key={project.slug}>
-            <div className="work-art">
+            <div className="work-art" data-reveal="wipe">
               <ProjectMedia project={project} index={index} />
             </div>
-            <div className="work-card-meta">
+            <div className="work-card-meta" data-reveal="up">
               <span>{project.category}</span>
-              <span>Details to come</span>
+              <span>{project.year}</span>
             </div>
-            <h3>{project.title}</h3>
-            <p>{project.summary}</p>
-            <Link className="work-card-link" to={`/work/${project.slug}`}>
-              View project space <span aria-hidden="true">↗</span>
+            <h3 data-reveal="up">{project.title}</h3>
+            <p data-reveal="up">{project.summary}</p>
+            <Link className="work-card-link" data-reveal="up" to={`/work/${project.slug}`}>
+              Read the case study <span aria-hidden="true">↗</span>
             </Link>
           </article>
         ))}

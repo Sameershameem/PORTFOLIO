@@ -3,6 +3,9 @@ import Hero from './Hero.jsx'
 import AboutSection from './AboutSection.jsx'
 import Loader from './Loader.jsx'
 import heroSkills from '../../data/heroSkills.js'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { canRender3D } from '../../lib/webgl.js'
+import { STATUE_SRC } from '../../data/statue.js'
 
 const ChessScene = lazy(() => import('./Hero3DScene.jsx'))
 
@@ -14,7 +17,10 @@ export default function ChessExperience() {
   const wrapperRef = useRef(null)
   const heroStageRef = useRef(null)
   const heroPinRef = useRef(null)
+  // Real GPU → full 3D scene. Otherwise a light version: statue image + chess glyphs.
+  const [use3D] = useState(canRender3D)
   const [sceneReady, setSceneReady] = useState(false)
+  const [posterReady, setPosterReady] = useState(false)
   const handleSceneReady = useCallback(() => setSceneReady(true), [])
   const labelRefs = useMemo(() => heroSkills.map(() => createRef()), [])
   const dockRefs = useMemo(() => heroSkills.map(() => createRef()), [])
@@ -29,7 +35,25 @@ export default function ChessExperience() {
     if (introRef.current === null) introRef.current = performance.now()
     setRevealed(true)
   }, [])
-  const handleLoaderDone = useCallback(() => setLoading(false), [])
+  const handleLoaderDone = useCallback(() => {
+    setLoading(false)
+    // Scrolling is unlocked now: re-measure every scroll trigger against the final layout.
+    requestAnimationFrame(() => ScrollTrigger.refresh())
+  }, [])
+
+  // Light version: the loader waits for the statue image instead of the WebGL scene.
+  useEffect(() => {
+    if (use3D) return undefined
+    let cancelled = false
+    const image = new Image()
+    image.src = STATUE_SRC
+    image.decode().catch(() => {}).then(() => {
+      if (!cancelled) setPosterReady(true)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [use3D])
 
   // No loader (in-app navigation back to Home): the statue rises straight away.
   useEffect(() => {
@@ -44,9 +68,18 @@ export default function ChessExperience() {
       data-intro={revealed || undefined}
       data-loading={loading || undefined}
     >
-      {loading && <Loader ready={sceneReady} loaderRef={loaderRef} onReveal={handleReveal} onDone={handleLoaderDone} />}
+      {loading && (
+        <Loader
+          ready={use3D ? sceneReady : posterReady}
+          has3D={use3D}
+          loaderRef={loaderRef}
+          onReveal={handleReveal}
+          onDone={handleLoaderDone}
+        />
+      )}
 
       <div className="chess-stage" aria-hidden="true">
+        {use3D && (
         <Suspense fallback={null}>
           <ChessScene
             wrapperRef={wrapperRef}
@@ -60,6 +93,7 @@ export default function ChessExperience() {
             onReady={handleSceneReady}
           />
         </Suspense>
+        )}
         <ul className="hero-skill-tags">
           {heroSkills.map((skill, index) => (
             <li className="hero-skill-tag" key={skill.piece} ref={labelRefs[index]}>
@@ -71,7 +105,7 @@ export default function ChessExperience() {
       </div>
 
       <Hero stageRef={heroStageRef} pinRef={heroPinRef} />
-      <AboutSection skills={heroSkills} dockRefs={dockRefs} />
+      <AboutSection skills={heroSkills} dockRefs={dockRefs} staticPieces={!use3D} />
     </div>
   )
 }

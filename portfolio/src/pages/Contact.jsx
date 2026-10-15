@@ -1,364 +1,314 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { gsap } from 'gsap'
 import PageLayout from '../components/layout/PageLayout.jsx'
-import SectionTitle from '../components/ui/SectionTitle.jsx'
 import Toast from '../components/ui/Toast.jsx'
+import Marquee from '../components/ui/Marquee.jsx'
 import SEO from '../components/ui/SEO.jsx'
 import { pageMeta } from '../data/seo.js'
-import { contactEmail, contactSocials } from '../data/contactDetails.js'
+import { contactEmail, contactLocation, contactPhone, contactSocials } from '../data/contactDetails.js'
+import { KING_PATH, KING_VIEWBOX } from '../data/chess.js'
+
+const PROJECT_TYPES = ['Performance marketing', 'Meta & Google Ads', 'Content & UGC', 'Copywriting', 'Website']
+const EMPTY_FORM = { name: '', email: '', types: [], message: '', _gotcha: '' }
+const linkedIn = contactSocials.find((social) => social.label === 'LinkedIn')
+
+/** Live local time in Aligarh (IST), ticking every second. */
+function useLocalTime() {
+  const format = () =>
+    new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  const [time, setTime] = useState(format)
+  useEffect(() => {
+    const id = window.setInterval(() => setTime(format()), 1000)
+    return () => window.clearInterval(id)
+  }, [])
+  return time
+}
+
+function validate(form) {
+  const errors = {}
+  if (!form.name.trim()) errors.name = 'Please add your name.'
+  if (!form.email.trim()) errors.email = 'Please add your email.'
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errors.email = 'That email doesn’t look right.'
+  if (form.message.trim().length < 10) errors.message = 'A sentence or two (10+ characters) helps me reply properly.'
+  return errors
+}
 
 export default function Contact() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: '',
-    _gotcha: '', // Honeypot field for spam prevention
-  })
-
+  const [form, setForm] = useState(EMPTY_FORM)
   const [errors, setErrors] = useState({})
-  const [status, setStatus] = useState('idle') // idle | submitting | success | error
-  const [formError, setFormError] = useState('')
-  const [toastVisible, setToastVisible] = useState(false)
-  const [toastMessage, setToastMessage] = useState('')
+  const [status, setStatus] = useState('idle') // idle | sending | sent | drafted | error
+  const [toast, setToast] = useState('')
+  const kingRef = useRef(null)
+  const time = useLocalTime()
 
-  const emailAddress = contactEmail
+  // The hero king floats on its own and leans toward the cursor.
+  useEffect(() => {
+    const king = kingRef.current
+    if (!king || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined
+    const float = gsap.to(king, { yPercent: -6, duration: 3.2, ease: 'sine.inOut', yoyo: true, repeat: -1 })
+    const rotate = gsap.quickTo(king, 'rotation', { duration: 1.2, ease: 'power3.out' })
+    const shift = gsap.quickTo(king, 'x', { duration: 1.2, ease: 'power3.out' })
+    const move = (event) => {
+      const offset = event.clientX / window.innerWidth - 0.5
+      rotate(offset * 14)
+      shift(offset * 40)
+    }
+    window.addEventListener('pointermove', move, { passive: true })
+    return () => {
+      float.kill()
+      window.removeEventListener('pointermove', move)
+    }
+  }, [])
 
-  // Copy email to clipboard with Toast notification
-  const handleCopyEmail = async () => {
+  const showToast = (message) => {
+    setToast(message)
+    window.setTimeout(() => setToast(''), 2800)
+  }
+
+  const copyEmail = async () => {
     try {
-      await navigator.clipboard.writeText(emailAddress)
-      setToastMessage('Email copied to clipboard!')
-      setToastVisible(true)
-      setTimeout(() => setToastVisible(false), 3000)
+      await navigator.clipboard.writeText(contactEmail)
+      showToast('Email copied — talk soon.')
     } catch {
-      setToastMessage('Clipboard unavailable. Select the email address to copy it.')
-      setToastVisible(true)
-      setTimeout(() => setToastVisible(false), 3000)
+      showToast('Couldn’t copy — select the address instead.')
     }
   }
 
-  // Validate form fields
-  const validate = () => {
-    const errs = {}
-    if (!formData.name.trim()) {
-      errs.name = 'Please provide your name.'
-    }
-    if (!formData.email.trim()) {
-      errs.email = 'Please provide your email address.'
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errs.email = 'Please provide a valid email address.'
-    }
-    if (!formData.message.trim()) {
-      errs.message = 'Please provide a brief message.'
-    } else if (formData.message.trim().length < 10) {
-      errs.message = 'Message must be at least 10 characters long.'
-    }
-    return errs
+  const update = (field) => (event) => {
+    const { value } = event.target
+    setForm((previous) => ({ ...previous, [field]: value }))
+    if (errors[field]) setErrors((previous) => ({ ...previous, [field]: undefined }))
   }
 
-  // Handle form change
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: null }))
-    }
+  const toggleType = (type) => {
+    setForm((previous) => ({
+      ...previous,
+      types: previous.types.includes(type)
+        ? previous.types.filter((item) => item !== type)
+        : [...previous.types, type],
+    }))
   }
 
-  // Handle submit
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    if (form._gotcha) return setStatus('sent') // honeypot: quietly drop bots
+    const found = validate(form)
+    setErrors(found)
+    if (Object.keys(found).length) return undefined
 
-    // Spam honeypot trap
-    if (formData._gotcha) {
-      setStatus('success')
-      return
+    const subject = `New project enquiry${form.types.length ? ` — ${form.types.join(', ')}` : ''}`
+    const body = `${form.message}\n\n— ${form.name} (${form.email})`
+    const endpoint = import.meta.env.VITE_FORM_ENDPOINT
+
+    // No form service configured yet: hand the message to the visitor's email app.
+    if (!endpoint || endpoint.includes('your_form_id')) {
+      window.location.href = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+      setStatus('drafted')
+      return undefined
     }
 
-    const validationErrors = validate()
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors)
-      return
-    }
-
-    const formEndpoint = import.meta.env.VITE_FORM_ENDPOINT
-    if (!formEndpoint || formEndpoint.includes('your_form_id')) {
-      setFormError('The contact form is not connected yet. Please email the placeholder address below.')
-      setStatus('error')
-      return
-    }
-
-    setStatus('submitting')
+    setStatus('sending')
     try {
-      const response = await fetch(formEndpoint, {
+      const response = await fetch(endpoint, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          subject: formData.subject || 'Portfolio Inquiry',
-          message: formData.message,
-        }),
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ name: form.name, email: form.email, subject, projectTypes: form.types, message: form.message }),
       })
-
-      if (!response.ok) throw new Error(`Submission failed (${response.status})`)
-
-      setStatus('success')
-      setFormError('')
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: '',
-        _gotcha: '',
-      })
-    } catch (error) {
+      if (!response.ok) throw new Error(String(response.status))
+      setStatus('sent')
+      setForm(EMPTY_FORM)
+    } catch {
       setStatus('error')
-      setFormError(
-        error instanceof Error
-          ? `${error.message}. Please try again or email the address below.`
-          : 'We could not deliver your message. Please email the address below.',
-      )
     }
+    return undefined
   }
+
+  const done = status === 'sent' || status === 'drafted'
 
   return (
     <PageLayout>
-      <SEO
-        {...pageMeta['/contact']}
-      />
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
-        <SectionTitle
-          kicker="Direct Communication"
-          title="contact."
-          intro="Whether it’s a campaign, a creative collaboration, or a digital product, let’s build something worth remembering."
-        />
+      <SEO {...pageMeta['/contact']} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 my-8 sm:my-12">
-          {/* Left Column: Direct Info & Socials */}
-          <div className="lg:col-span-5 space-y-10">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-brand-muted mb-2">
-                Send an Email
-              </p>
-              <button
-                type="button"
-                onClick={handleCopyEmail}
-                className="group flex items-center gap-3 text-lg sm:text-xl md:text-2xl font-extrabold text-brand-ink hover:text-brand-yellow transition-colors text-left"
-                title="Click to copy email"
-              >
-                <span>{emailAddress}</span>
-                <span className="text-xs font-mono font-bold px-2 py-1 bg-neutral-200 group-hover:bg-brand-yellow group-hover:text-brand-ink rounded-full transition-colors">
-                  Copy 📋
-                </span>
-              </button>
-              <p className="text-xs text-brand-muted mt-1.5">
-                Editable contact placeholder — replace this address before publishing.
-              </p>
-            </div>
+      <div className="cx">
+        {/* ── Hero ── */}
+        <section className="cx-hero" aria-labelledby="contact-heading">
+          <div className="cx-hero-copy">
+            <p className="cx-status" data-reveal="up">
+              <span className="cx-status-dot" aria-hidden="true" />
+              Open to new projects
+            </p>
+            <h1 className="cx-heading" id="contact-heading" data-reveal="lines">
+              Let&apos;s make the next move.
+            </h1>
+            <p className="cx-intro" data-reveal="up">
+              Campaigns, content or a launch that needs to land — tell me where you want to go
+              and I&apos;ll help plan the moves to get there.
+            </p>
+            <p className="cx-clock" data-reveal="up">
+              {contactLocation} · <span>{time}</span> IST
+            </p>
+          </div>
+          <svg className="cx-king" ref={kingRef} viewBox={KING_VIEWBOX} aria-hidden="true">
+            <path d={KING_PATH} />
+          </svg>
+        </section>
 
-            <div className="pt-6 border-t border-neutral-200">
-              <p className="text-xs font-bold uppercase tracking-wider text-brand-muted mb-4">
-                Connect on Social Channels
-              </p>
-              <div className="flex flex-wrap gap-3">
-                {contactSocials.map((s) => (
-                  <a
-                    key={s.label}
-                    href={s.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-neutral-200 text-xs font-bold uppercase tracking-wider text-brand-ink hover:border-brand-yellow hover:bg-neutral-50 transition-colors"
-                  >
-                    <span>{s.label}</span>
-                    <span className="text-[10px]">↗</span>
-                  </a>
-                ))}
-              </div>
+        {/* ── Direct lines ── */}
+        <ul className="cx-rows" data-reveal="stagger" aria-label="Contact details">
+          <li>
+            <a className="cx-row" href={`mailto:${contactEmail}`}>
+              <span className="cx-row-label">Email</span>
+              <span className="cx-row-value">{contactEmail}</span>
+              <span className="cx-row-arrow" aria-hidden="true">↗</span>
+            </a>
+            <button className="cx-copy" type="button" onClick={copyEmail}>Copy</button>
+          </li>
+          <li>
+            <a className="cx-row" href={contactPhone.href}>
+              <span className="cx-row-label">Phone</span>
+              <span className="cx-row-value">{contactPhone.display}</span>
+              <span className="cx-row-arrow" aria-hidden="true">↗</span>
+            </a>
+          </li>
+          {linkedIn && (
+            <li>
+              <a className="cx-row" href={linkedIn.href} target="_blank" rel="noreferrer">
+                <span className="cx-row-label">LinkedIn</span>
+                <span className="cx-row-value">in/sameer-shameem</span>
+                <span className="cx-row-arrow" aria-hidden="true">↗</span>
+              </a>
+            </li>
+          )}
+          <li>
+            <div className="cx-row cx-row--static">
+              <span className="cx-row-label">Based in</span>
+              <span className="cx-row-value">{contactLocation}</span>
+              <span className="cx-row-arrow" aria-hidden="true">●</span>
             </div>
+          </li>
+        </ul>
+
+        {/* ── Form ── */}
+        <section className="cx-form-wrap" aria-labelledby="form-heading">
+          <div className="cx-form-side">
+            <p className="experience-kicker" data-reveal="up">Send a message</p>
+            <h2 className="cx-form-heading" id="form-heading" data-reveal="lines">
+              Tell me about your next campaign.
+            </h2>
+            <ol className="cx-steps" data-reveal="stagger">
+              <li><span>01</span>Share the goal and where you are today.</li>
+              <li><span>02</span>I reply personally by email.</li>
+              <li><span>03</span>We map the first moves together.</li>
+            </ol>
           </div>
 
-          {/* Right Column: Interactive Form */}
-          <div className="lg:col-span-7 bg-white p-8 sm:p-10 border border-neutral-200/80 shadow-2xs">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-brand-ink mb-6">
-              Send a Message<span className="text-brand-yellow">.</span>
-            </h2>
-
-            {status === 'success' && (
-              <div
-                role="alert"
-                className="p-6 mb-8 bg-green-50 border border-green-200 text-green-900 rounded-none animate-fade-in"
-              >
-                <div className="flex items-center gap-3 mb-1">
-                  <span className="text-xl">✓</span>
-                  <h3 className="font-bold text-base">Message Sent Successfully!</h3>
-                </div>
-                <p className="text-sm text-green-800">
-                  Your message was sent. Thank you for getting in touch.
+          <div className="cx-form-card" data-reveal="up">
+            {done ? (
+              <div className="cx-done" role="status">
+                <svg className="cx-check" viewBox="0 0 52 52" aria-hidden="true">
+                  <circle cx="26" cy="26" r="24" />
+                  <path d="M15 27l7 7 15-16" />
+                </svg>
+                <h3>{status === 'sent' ? 'Message sent.' : 'Your email is ready.'}</h3>
+                <p>
+                  {status === 'sent'
+                    ? 'Thanks for reaching out — I’ll get back to you by email.'
+                    : 'Your email app opened with the message filled in — just press send.'}
                 </p>
-                <button
-                  type="button"
-                  onClick={() => setStatus('idle')}
-                  className="mt-4 text-xs font-bold uppercase underline cursor-pointer hover:text-green-950"
-                >
+                <button className="cx-reset" type="button" onClick={() => setStatus('idle')}>
                   Send another message
                 </button>
               </div>
-            )}
-
-            {status === 'error' && (
-              <div
-                role="alert"
-                className="p-6 mb-8 bg-red-50 border border-red-200 text-red-900 rounded-none"
-              >
-                <h3 className="font-bold text-base mb-1">Message not sent</h3>
-                <p className="text-sm text-red-800">
-                  {formError}{' '}
-                  <a href={`mailto:${emailAddress}`} className="underline font-bold">
-                    {emailAddress}
-                  </a>{' '}
-                </p>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} noValidate className="space-y-6">
-              {/* Spam Honeypot - hidden from real humans */}
-              <input
-                type="text"
-                name="_gotcha"
-                value={formData._gotcha}
-                onChange={handleChange}
-                style={{ display: 'none' }}
-                tabIndex="-1"
-                autoComplete="off"
-                aria-hidden="true"
-              />
-
-              {/* Name field */}
-              <div>
-                <label
-                  htmlFor="contact-name"
-                  className="block text-xs font-bold uppercase tracking-wider text-brand-ink mb-2"
-                >
-                  Your Name <span className="text-brand-yellow font-black">*</span>
-                </label>
+            ) : (
+              <form className="cx-form" onSubmit={handleSubmit} noValidate>
                 <input
-                  id="contact-name"
-                  name="name"
                   type="text"
-                  required
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="e.g. Alex Morgan"
-                  className={`w-full px-4 py-3.5 bg-neutral-50 border ${
-                    errors.name ? 'border-red-500' : 'border-neutral-300'
-                  } focus:bg-white text-brand-ink text-sm transition-colors rounded-none outline-none`}
-                  aria-invalid={Boolean(errors.name)}
-                  aria-describedby={errors.name ? 'name-error' : undefined}
+                  name="_gotcha"
+                  value={form._gotcha}
+                  onChange={update('_gotcha')}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  className="cx-honeypot"
+                  aria-hidden="true"
                 />
-                {errors.name && (
-                  <p id="name-error" className="text-xs text-red-600 font-medium mt-1.5" aria-live="polite">
-                    {errors.name}
+
+                <fieldset className="cx-types">
+                  <legend>What do you need?</legend>
+                  <div>
+                    {PROJECT_TYPES.map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        className="cx-chip"
+                        aria-pressed={form.types.includes(type)}
+                        onClick={() => toggleType(type)}
+                      >
+                        {type}
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+
+                {[
+                  ['name', 'Your name', 'text', 'name'],
+                  ['email', 'Email address', 'email', 'email'],
+                ].map(([field, label, type, autoComplete]) => (
+                  <div className={`cx-field${errors[field] ? ' has-error' : ''}`} key={field}>
+                    <input
+                      id={`cx-${field}`}
+                      type={type}
+                      value={form[field]}
+                      onChange={update(field)}
+                      placeholder=" "
+                      autoComplete={autoComplete}
+                      aria-invalid={Boolean(errors[field])}
+                      aria-describedby={errors[field] ? `cx-${field}-error` : undefined}
+                    />
+                    <label htmlFor={`cx-${field}`}>{label}</label>
+                    <span className="cx-line" aria-hidden="true" />
+                    {errors[field] && <p className="cx-error" id={`cx-${field}-error`}>{errors[field]}</p>}
+                  </div>
+                ))}
+
+                <div className={`cx-field cx-field--area${errors.message ? ' has-error' : ''}`}>
+                  <textarea
+                    id="cx-message"
+                    rows={4}
+                    value={form.message}
+                    onChange={update('message')}
+                    placeholder=" "
+                    aria-invalid={Boolean(errors.message)}
+                    aria-describedby={errors.message ? 'cx-message-error' : undefined}
+                  />
+                  <label htmlFor="cx-message">Project details</label>
+                  <span className="cx-line" aria-hidden="true" />
+                  <span className="cx-count" aria-hidden="true">{form.message.length}</span>
+                  {errors.message && <p className="cx-error" id="cx-message-error">{errors.message}</p>}
+                </div>
+
+                {status === 'error' && (
+                  <p className="cx-error cx-error--form" role="alert">
+                    Something went wrong sending that. Please email {contactEmail} directly.
                   </p>
                 )}
-              </div>
 
-              {/* Email field */}
-              <div>
-                <label
-                  htmlFor="contact-email"
-                  className="block text-xs font-bold uppercase tracking-wider text-brand-ink mb-2"
-                >
-                  Email Address <span className="text-brand-yellow font-black">*</span>
-                </label>
-                <input
-                  id="contact-email"
-                  name="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="alex@company.com"
-                  className={`w-full px-4 py-3.5 bg-neutral-50 border ${
-                    errors.email ? 'border-red-500' : 'border-neutral-300'
-                  } focus:bg-white text-brand-ink text-sm transition-colors rounded-none outline-none`}
-                  aria-invalid={Boolean(errors.email)}
-                  aria-describedby={errors.email ? 'email-error' : undefined}
-                />
-                {errors.email && (
-                  <p id="email-error" className="text-xs text-red-600 font-medium mt-1.5" aria-live="polite">
-                    {errors.email}
-                  </p>
-                )}
-              </div>
-
-              {/* Subject field (optional) */}
-              <div>
-                <label
-                  htmlFor="contact-subject"
-                  className="block text-xs font-bold uppercase tracking-wider text-brand-ink mb-2"
-                >
-                  Subject / Project Scope <span className="text-brand-muted text-[10px] font-normal">(Optional)</span>
-                </label>
-                <input
-                  id="contact-subject"
-                  name="subject"
-                  type="text"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  placeholder="e.g. Meta Ads Audit or Q3 Product Launch"
-                  className="w-full px-4 py-3.5 bg-neutral-50 border border-neutral-300 focus:bg-white text-brand-ink text-sm transition-colors rounded-none outline-none"
-                />
-              </div>
-
-              {/* Message field */}
-              <div>
-                <label
-                  htmlFor="contact-message"
-                  className="block text-xs font-bold uppercase tracking-wider text-brand-ink mb-2"
-                >
-                  Project Details / Message <span className="text-brand-yellow font-black">*</span>
-                </label>
-                <textarea
-                  id="contact-message"
-                  name="message"
-                  rows="5"
-                  required
-                  value={formData.message}
-                  onChange={handleChange}
-                  placeholder="Share your current challenges, target goals, timelines, or ad spend requirements..."
-                  className={`w-full px-4 py-3.5 bg-neutral-50 border ${
-                    errors.message ? 'border-red-500' : 'border-neutral-300'
-                  } focus:bg-white text-brand-ink text-sm transition-colors rounded-none outline-none resize-y`}
-                  aria-invalid={Boolean(errors.message)}
-                  aria-describedby={errors.message ? 'message-error' : undefined}
-                />
-                {errors.message && (
-                  <p id="message-error" className="text-xs text-red-600 font-medium mt-1.5" aria-live="polite">
-                    {errors.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Submit button */}
-              <div>
-                <button
-                  type="submit"
-                  disabled={status === 'submitting'}
-                  className="w-full sm:w-auto inline-flex items-center justify-center px-10 py-4 bg-brand-ink text-white font-bold text-xs uppercase tracking-widest rounded-full hover:bg-brand-yellow hover:text-brand-ink transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-                >
-                  {status === 'submitting' ? 'Sending message...' : 'Send Message ↗'}
+                <button className="cx-submit" type="submit" disabled={status === 'sending'} data-magnetic>
+                  <span>{status === 'sending' ? 'Sending…' : 'Send message'}</span>
+                  <span className="cx-submit-arrow" aria-hidden="true">→</span>
                 </button>
-              </div>
-            </form>
+              </form>
+            )}
           </div>
-        </div>
-
-        <Toast message={toastMessage} visible={toastVisible} />
+        </section>
       </div>
+
+      <Marquee
+        className="marquee--statement cx-marquee"
+        items={['Your move', 'Let’s talk', 'Strategy', 'Content', 'Performance']}
+        label="Your move — let’s talk"
+      />
+
+      <Toast visible={Boolean(toast)} message={toast} />
     </PageLayout>
   )
 }

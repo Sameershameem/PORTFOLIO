@@ -7,6 +7,9 @@ import CTA from '../components/sections/CTA.jsx'
 import SEO from '../components/ui/SEO.jsx'
 import projects from '../data/projects.js'
 
+// Placeholder copy ("to be added", "No outcomes provided…") is hidden until real content exists.
+const isFilled = (text) => Boolean(text) && !/to be (added|documented)|no outcomes provided|add (a|only) verified/i.test(text)
+
 export default function ProjectDetail() {
   const { slug } = useParams()
 
@@ -21,6 +24,14 @@ export default function ProjectDetail() {
   // Next project cycler (loops back to 0 if at the end)
   const nextIndex = (currentIndex + 1) % projects.length
   const nextProject = projects[nextIndex]
+
+  const narrative = [
+    ['Project Overview', project.overview],
+    ['The Challenge', project.problem],
+    ['The Approach', project.process],
+    ['Execution', project.solution],
+    ['Results', project.results],
+  ].filter(([, text]) => isFilled(text))
 
   return (
     <PageLayout>
@@ -140,74 +151,40 @@ export default function ProjectDetail() {
           </div>
         )}
 
-        {/* Narrative Sections */}
+        {/* Narrative: only sections with real content are shown. */}
         <div className="space-y-12 sm:space-y-16 max-w-3xl">
-          {/* Overview */}
-          <section className="space-y-4">
-            <h2 className="text-xs font-mono font-bold uppercase tracking-widest text-brand-muted flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
-              01. Project Overview
-            </h2>
-            <p className="text-base sm:text-lg text-neutral-800 leading-relaxed">
-              {project.overview}
-            </p>
-          </section>
+          {narrative.length > 0 ? (
+            narrative.map(([label, text], index) => (
+              <section className="space-y-4" key={label}>
+                <h2 className="text-xs font-mono font-bold uppercase tracking-widest text-brand-muted flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
+                  {String(index + 1).padStart(2, '0')}. {label}
+                </h2>
+                <p className="text-base sm:text-lg text-neutral-800 leading-relaxed">{text}</p>
+              </section>
+            ))
+          ) : (
+            <section className="p-6 sm:p-8 border border-neutral-300">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-muted mb-3">Case study in progress</p>
+              <p className="text-base sm:text-lg text-neutral-800 leading-relaxed">
+                The full story — the challenge, the approach and verified results — is being written up.
+                Want the details sooner? Let&apos;s talk.
+              </p>
+            </section>
+          )}
 
-          {/* Problem */}
-          <section className="space-y-4">
-            <h2 className="text-xs font-mono font-bold uppercase tracking-widest text-brand-muted flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
-              02. The Challenge & Bottlenecks
-            </h2>
-            <p className="text-base sm:text-lg text-neutral-800 leading-relaxed">
-              {project.problem}
-            </p>
-          </section>
-
-          {/* Process */}
-          <section className="space-y-4">
-            <h2 className="text-xs font-mono font-bold uppercase tracking-widest text-brand-muted flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
-              03. Strategic Architecture
-            </h2>
-            <p className="text-base sm:text-lg text-neutral-800 leading-relaxed">
-              {project.process}
-            </p>
-          </section>
-
-          {/* Solution */}
-          <section className="space-y-4">
-            <h2 className="text-xs font-mono font-bold uppercase tracking-widest text-brand-muted flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
-              04. The Solution & Execution
-            </h2>
-            <p className="text-base sm:text-lg text-neutral-800 leading-relaxed">
-              {project.solution}
-            </p>
-          </section>
-
-          {/* Results */}
-          <section className="space-y-4 p-6 sm:p-8 bg-neutral-900 text-white rounded-none">
-            <h2 className="text-xs font-mono font-bold uppercase tracking-widest text-brand-yellow flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow" />
-              05. Verifiable Business Impact
-            </h2>
-            <p className="text-base sm:text-lg text-neutral-200 leading-relaxed">
-              {project.results}
-            </p>
-          </section>
-
-          {/* Toolkit Used */}
-          <section className="pt-8 border-t border-neutral-200">
-            <h3 className="text-sm font-bold text-brand-ink uppercase tracking-wider mb-4">
-              Technologies, Platforms & Tools
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {project.tools.map((tool) => (
-                <Tag key={tool}>{tool}</Tag>
-              ))}
-            </div>
-          </section>
+          {project.tools.length > 0 && (
+            <section className="pt-8 border-t border-neutral-200">
+              <h3 className="text-sm font-bold text-brand-ink uppercase tracking-wider mb-4">
+                Technologies, Platforms & Tools
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {project.tools.map((tool) => (
+                  <Tag key={tool}>{tool}</Tag>
+                ))}
+              </div>
+            </section>
+          )}
 
           {project.links?.length > 0 && (
             <section className="pt-8 border-t border-neutral-200">
@@ -241,10 +218,10 @@ export default function ProjectDetail() {
             className="group flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 sm:p-8 bg-white border border-neutral-200 hover:border-brand-yellow hover:bg-neutral-50 transition-all duration-200"
           >
             <div>
-              <span className="text-xs font-bold text-brand-yellow uppercase tracking-wider block mb-1">
+              <span className="text-xs font-bold text-brand-olive uppercase tracking-wider block mb-1">
                 {nextProject.category} · {nextProject.year}
               </span>
-              <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-brand-ink group-hover:text-brand-yellow transition-colors">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-brand-ink group-hover:text-brand-olive transition-colors">
                 {nextProject.title}
               </h3>
             </div>

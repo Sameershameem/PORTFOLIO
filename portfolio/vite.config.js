@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig, loadEnv } from 'vite'
 import projects from './src/data/projects.js'
-import posts from './src/data/posts.js'
 import { defaultDescription, formatTitle, pageMeta } from './src/data/seo.js'
+import { STATUE_SRC } from './src/data/statue.js'
 
 const escapeHtml = (value) => String(value)
   .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -41,10 +41,8 @@ function seoFiles(siteUrl) {
     ['/work', 'weekly', '0.9', pageMeta['/work']],
     ['/services', 'monthly', '0.8', pageMeta['/services']],
     ['/about', 'monthly', '0.8', pageMeta['/about']],
-    ['/blog', 'weekly', '0.7', pageMeta['/blog']],
     ['/contact', 'monthly', '0.8', pageMeta['/contact']],
     ...projects.map((p) => [`/work/${p.slug}`, 'monthly', '0.7', { title: `${p.title} — Case Study`, description: p.summary }]),
-    ...posts.map((p) => [`/blog/${p.slug}`, 'monthly', '0.6', { title: p.title, description: p.excerpt, type: 'article' }]),
   ]
 
   return {
@@ -61,7 +59,13 @@ function seoFiles(siteUrl) {
           headFor(siteUrl, path, meta),
         )
         for (const [path, , , meta] of routes) {
-          if (path === '/') shell.source = withHead(path, meta)
+          // Home only: start fetching the statue texture with the HTML (it is the hero's main image).
+          if (path === '/') {
+            shell.source = withHead(path, meta).replace(
+              '</head>',
+              `  <link rel="preload" as="image" href="${STATUE_SRC}" type="image/webp" fetchpriority="high" />\n  </head>`,
+            )
+          }
           else this.emitFile({ type: 'asset', fileName: `${path.slice(1)}/index.html`, source: withHead(path, meta) })
         }
       }

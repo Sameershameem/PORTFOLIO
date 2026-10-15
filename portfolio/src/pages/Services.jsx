@@ -33,7 +33,7 @@ export default function Services() {
                   </span>
                 </div>
 
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-brand-ink mb-4 tracking-tight group-hover:text-brand-yellow transition-colors">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-brand-ink mb-4 tracking-tight group-hover:text-brand-olive transition-colors">
                   {service.title}
                 </h2>
 
@@ -48,7 +48,7 @@ export default function Services() {
                   </p>
                   {service.includes.map((item) => (
                     <div key={item} className="flex items-start gap-3 text-xs sm:text-sm text-neutral-700">
-                      <span className="text-brand-yellow font-bold text-base leading-none">✓</span>
+                      <span className="text-brand-olive font-bold text-base leading-none">✓</span>
                       <span>{item}</span>
                     </div>
                   ))}
@@ -58,7 +58,7 @@ export default function Services() {
               <div className="mt-8 pt-6 border-t border-neutral-100 flex items-center justify-between">
                 <a
                   href="/contact"
-                  className="text-xs font-bold uppercase tracking-wider text-brand-ink hover:text-brand-yellow transition-colors flex items-center gap-1.5"
+                  className="text-xs font-bold uppercase tracking-wider text-brand-ink hover:text-brand-olive transition-colors flex items-center gap-1.5"
                 >
                   Inquire about this service <span>↗</span>
                 </a>

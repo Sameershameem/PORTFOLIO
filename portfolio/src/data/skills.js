@@ -1,56 +1,36 @@
+// Core skills, grouped (from Sameer's CV).
 const skills = [
   {
-    category: 'Marketing Strategy',
-    items: [
-      'Audience research',
-      'Positioning',
-      'Campaign planning',
-      'Digital growth strategy',
-    ],
-  },
-  {
-    category: 'Content Creation',
-    items: [
-      'Creative concepts',
-      'Social media content',
-      'Short-form video',
-      'Visual storytelling',
-    ],
-  },
-  {
     category: 'Performance Marketing',
-    items: [
-      'Paid advertising',
-      'Audience targeting',
-      'Campaign optimization',
-      'Conversion-focused execution',
-    ],
+    items: ['Meta Ads', 'Google Search Ads', 'ROAS optimisation', 'A/B testing', 'Lead generation', 'KPI tracking'],
+  },
+  {
+    category: 'Content Strategy',
+    items: ['Reels & short-form', 'UGC', 'Content calendars', 'Trend research', 'Creative direction'],
+  },
+  {
+    category: 'Social Media Marketing',
+    items: ['Paid social', 'Audience targeting', 'Audience insights', 'Content analytics'],
+  },
+  {
+    category: 'Client & Campaign Management',
+    items: ['Campaign management', 'Campaign reporting', 'Client communication', 'Brand messaging'],
   },
   {
     category: 'Copywriting',
-    items: [
-      'Ad copy',
-      'Hooks and headlines',
-      'Brand messaging',
-      'Persuasive storytelling',
-    ],
+    items: ['Hooks & scripts', 'Ad copy', 'Brand voice', 'Captions'],
   },
   {
     category: 'Vibe Coding',
-    items: [
-      'AI-assisted development',
-      'Modern web technologies',
-      'Interactive prototypes',
-      'Digital experiences',
-    ],
+    items: ['AI-assisted development', 'React', 'Landing pages', 'Interactive web'],
   },
 ]
 
 export const quickFacts = [
-  { label: 'Focus', value: 'Strategy, storytelling, and performance' },
-  { label: 'Practice', value: 'Marketing, content, copy, and development' },
-  { label: 'Approach', value: 'Creative and analytical' },
-  { label: 'Case studies', value: 'Verified work to be added' },
+  { label: 'Role', value: 'Digital & Performance Marketing Executive' },
+  { label: 'Currently', value: 'BrandsWay Agency' },
+  { label: 'Based in', value: 'Aligarh, India' },
+  { label: 'Studied', value: 'PGDBM – Marketing, AMU' },
 ]
 
 export default skills

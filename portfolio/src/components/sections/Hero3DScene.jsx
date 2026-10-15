@@ -9,6 +9,7 @@ import {
   LinearMipmapLinearFilter,
   MathUtils,
   MeshPhysicalMaterial,
+  MeshStandardMaterial,
   SRGBColorSpace,
   Shape,
   SphereGeometry,
@@ -29,7 +30,7 @@ const CAMERA_Z = 12
 const CAMERA_FOV = 30
 const PIECE_HEIGHT = 1.35 // model units, base to crown
 const STATUE_INTRO_MS = 1700 // statue rise after the loader hands over
-const KING_HANDOFF_MS = 1500 // loader king glides from screen centre to behind the statue
+const KING_HANDOFF_MS = 1600 // loader king glides from screen centre to the wordmark
 // Loader king size in px — must match --k in index.html: min(34% of the screen height, 320px).
 const loaderKingSize = (H) => Math.min(H * 0.34, 320)
 
@@ -38,21 +39,22 @@ const LITE = typeof window !== 'undefined'
   && window.matchMedia('(max-width: 900px), (pointer: coarse)').matches
 
 /* ── Shared materials: one GPU program for every piece ── */
-const obsidian = new MeshPhysicalMaterial({
+// Phones get the cheaper standard shader (no clear-coat pass) — far faster to compile and draw.
+const PieceMaterial = LITE ? MeshStandardMaterial : MeshPhysicalMaterial
+
+const obsidian = new PieceMaterial({
   color: '#1b1c1a',
   metalness: 0.65,
   roughness: 0.18,
-  clearcoat: LITE ? 0 : 1,
-  clearcoatRoughness: 0.06,
+  ...(LITE ? {} : { clearcoat: 1, clearcoatRoughness: 0.06 }),
   envMapIntensity: 1.35,
 })
 
-const chrome = new MeshPhysicalMaterial({
+const chrome = new PieceMaterial({
   color: '#c9ccc6',
   metalness: 1,
   roughness: 0.14,
-  clearcoat: LITE ? 0 : 1,
-  clearcoatRoughness: 0.05,
+  ...(LITE ? {} : { clearcoat: 1, clearcoatRoughness: 0.05 }),
   envMapIntensity: 1.5,
 })
 
@@ -276,6 +278,7 @@ const easeOutBack = (t) => {
 /* ── Layout: reads the DOM once per frame (before anything writes) ── */
 function LayoutRig({ layoutRef, containerRef, heroStageRef, heroPinRef, dockRefs, reducedMotion }) {
   const size = useThree((state) => state.size)
+  const cacheRef = useRef({ scrollY: -1, w: 0, h: 0, frame: 0 })
 
   useFrame((_, delta) => {
     const layout = layoutRef.current
@@ -283,6 +286,20 @@ function LayoutRig({ layoutRef, containerRef, heroStageRef, heroPinRef, dockRefs
     const pin = heroPinRef.current
     const stage = heroStageRef.current
     if (!container || !pin || !stage) return
+
+    // Measuring the DOM forces a layout, so only re-measure when the page actually moved or
+    // resized (plus a cheap safety re-check twice a second). Hero easing still runs every frame.
+    const cache = cacheRef.current
+    cache.frame += 1
+    const scrollY = window.scrollY
+    const moved = scrollY !== cache.scrollY || size.width !== cache.w || size.height !== cache.h
+    if (!moved && layout.ready && cache.frame % 30 !== 0) {
+      layout.hero = reducedMotion ? layout.heroRaw : MathUtils.damp(layout.hero, layout.heroRaw, 7, Math.min(delta, 0.1))
+      return
+    }
+    cache.scrollY = scrollY
+    cache.w = size.width
+    cache.h = size.height
 
     const canvasRect = container.getBoundingClientRect()
     const pinRect = pin.getBoundingClientRect()
@@ -316,6 +333,18 @@ function LayoutRig({ layoutRef, containerRef, heroStageRef, heroPinRef, dockRefs
     layout.statue.cx = pinRect.left - canvasRect.left + pinRect.width / 2
     layout.statue.cy = bottom - height / 2
     layout.statue.h = height
+
+    // The floating king mark next to the "SAMEER" wordmark.
+    const markElement = document.querySelector('.wordmark-king')
+    if (markElement) {
+      const r = markElement.getBoundingClientRect()
+      layout.mark.ok = r.height > 0
+      layout.mark.x = r.left - canvasRect.left + r.width / 2
+      layout.mark.y = r.top - canvasRect.top + r.height / 2
+      layout.mark.h = r.height
+    } else {
+      layout.mark.ok = false
+    }
 
     dockRefs.forEach((ref, index) => {
       const dock = layout.docks[index]
@@ -432,7 +461,7 @@ function Warmup({ onReady }) {
 }
 
 /* ── Chess piece: burst → hero slot → side rail → docked in its About panel ── */
-function ChessPiece({ skill, index, count, layoutRef, cursorRef, labelRef, introRef, loaderRef, reducedMotion }) {
+function ChessPiece({ skill, index, count, layoutRef, cursorRef, labelRef, reducedMotion }) {
   const ref = useRef(null)
   const Piece = PIECE_COMPONENTS[skill.piece]
   const slot = SLOTS[skill.piece]
@@ -460,38 +489,6 @@ function ChessPiece({ skill, index, count, layoutRef, cursorRef, labelRef, intro
     const p = layout.hero
     const side = Math.sign(slot.x)
 
-    // 0 · The king doubles as the loader: centred and turning, then it glides back behind
-    //     the rising statue to its launch point — the same spot every piece bursts from.
-    const loader = loaderRef?.current
-    const intro = introRef?.current
-    const now = performance.now()
-    if (skill.piece === 'king' && loader && (intro == null || now - intro < KING_HANDOFF_MS)) {
-      if (loader.kingShownAt == null) {
-        group.visible = false
-        return
-      }
-      const age = (now - loader.kingShownAt) / 1000
-      const handoff = intro == null ? 0 : easeInOutCubic(clamp01((now - intro) / KING_HANDOFF_MS))
-      const kingSize = loaderKingSize(H)
-      const launchX = statue.cx + side * statue.h * 0.03
-      const launchY = statue.cy + statue.h * 0.05
-      const x = MathUtils.lerp(W / 2, launchX, handoff)
-      const y = MathUtils.lerp(H * 0.48, launchY, handoff) - Math.sin(Math.PI * handoff) * H * 0.04
-      const size = MathUtils.lerp(kingSize, statue.h * 0.17 * 0.35, handoff)
-      toWorld(layout, x, y, group.position)
-      group.position.z = MathUtils.lerp(0, -0.3 * statue.h, handoff) * layout.k
-      group.scale.setScalar((size * layout.k) / PIECE_HEIGHT)
-      group.visible = handoff < 1
-      // Starts face-on (matching the flat silhouette), then turns slowly with a slight lean.
-      const settle = easeInOutCubic(clamp01(age / 1.5))
-      group.rotation.set(
-        0.16 * settle + Math.sin(age * 0.7) * 0.03 * settle,
-        reducedMotion ? 0 : age * 0.85 * settle + handoff * Math.PI,
-        Math.sin(age * 0.5) * 0.025 * settle,
-      )
-      state.spin = group.rotation.y
-      return
-    }
 
     // 1 · Burst out from behind the statue into the hero slot.
     const start = (index / count) * (BURST_END - BURST_LENGTH)
@@ -571,7 +568,8 @@ function ChessPiece({ skill, index, count, layoutRef, cursorRef, labelRef, intro
       const lx = MathUtils.clamp(x + state.offset.x, half, W - half)
       const ly = y + state.offset.y + size * 0.52 + 6
       const opacity = clamp01((flight - 0.7) / 0.3) * (1 - clamp01(rail * 3)) * (1 - docking)
-      const key = `${lx.toFixed(1)}|${ly.toFixed(1)}|${opacity.toFixed(2)}`
+      // Hidden labels need no updates (avoids a style recalculation every frame).
+      const key = opacity < 0.005 ? 'hidden' : `${lx.toFixed(1)}|${ly.toFixed(1)}|${opacity.toFixed(2)}`
       if (key !== state.labelKey) {
         state.labelKey = key
         label.style.setProperty('transform', `translate3d(${lx.toFixed(1)}px, ${ly.toFixed(1)}px, 0) translate(-50%, 0)`)
@@ -585,6 +583,73 @@ function ChessPiece({ skill, index, count, layoutRef, cursorRef, labelRef, intro
       {/* centre the model on the group origin so docking/tilting pivot on its middle */}
       <group position={[0, -PIECE_HEIGHT / 2, 0]}>
         <Piece />
+      </group>
+    </group>
+  )
+}
+
+/* ── Mark king: the loader's king, which then flies to the wordmark and floats there ── */
+function MarkKing({ layoutRef, introRef, loaderRef, reducedMotion }) {
+  const ref = useRef(null)
+
+  useFrame(() => {
+    const group = ref.current
+    const layout = layoutRef.current
+    if (!group || !layout.ready) return
+    const { W, H, mark } = layout
+    const now = performance.now()
+    const shownAt = loaderRef.current?.kingShownAt
+    const intro = introRef.current
+
+    // Not on screen yet: still loading without WebGL ready, or no wordmark to land on.
+    if ((intro == null && shownAt == null) || (intro != null && !mark.ok)) {
+      group.visible = false
+      return
+    }
+
+    const age = (now - (shownAt ?? intro)) / 1000
+    const markSize = (mark.h * PIECE_HEIGHT) / 1.47 // model is 1.47 units tall; PIECE_HEIGHT maps to "size"
+    const float = reducedMotion ? 0 : Math.sin(age * 1.7) * mark.h * 0.11
+    const markX = mark.x
+    const markY = mark.y + 0.0444 * markSize + float
+    const centreSize = loaderKingSize(H)
+
+    let x = W / 2
+    let y = H * 0.48
+    let size = centreSize
+    let appear = 1
+    if (intro != null) {
+      if (shownAt == null) {
+        // No loader (navigated back to Home): simply grow in at the wordmark.
+        appear = 1 - (1 - clamp01((now - intro) / 700)) ** 3
+        x = markX
+        y = markY
+        size = markSize
+      } else {
+        const flight = easeInOutCubic(clamp01((now - intro) / KING_HANDOFF_MS))
+        x = MathUtils.lerp(W / 2, markX, flight)
+        y = MathUtils.lerp(H * 0.48, markY, flight) - Math.sin(Math.PI * flight) * H * 0.06
+        size = MathUtils.lerp(centreSize, markSize, flight)
+      }
+    }
+
+    toWorld(layout, x, y, group.position)
+    group.scale.setScalar(((size * layout.k) / PIECE_HEIGHT) * appear)
+    group.visible = appear > 0
+
+    // Face-on at first (matching the flat loader silhouette), then a slow, endless turn.
+    const settle = easeInOutCubic(clamp01(age / 1.5))
+    group.rotation.set(
+      0.16 * settle + Math.sin(age * 0.7) * 0.03 * settle,
+      reducedMotion ? 0 : age * 0.85 * settle,
+      Math.sin(age * 0.5) * 0.04 * settle,
+    )
+  })
+
+  return (
+    <group ref={ref} visible={false}>
+      <group position={[0, -PIECE_HEIGHT / 2, 0]}>
+        <King />
       </group>
     </group>
   )
@@ -667,6 +732,7 @@ export default function Hero3DScene({ wrapperRef, heroStageRef, heroPinRef, dock
       hero: 0,
       heroRaw: 0,
       statue: { cx: 0, cy: 0, h: 1 },
+      mark: { ok: false, x: 0, y: 0, h: 0 },
       docks: skills.map(() => ({ ok: false, x: 0, y: 0, h: 0 })),
     }
   }
@@ -681,10 +747,29 @@ export default function Hero3DScene({ wrapperRef, heroStageRef, heroPinRef, dock
   }, [wrapperRef])
 
   // Render from the shared frame loop (after Lenis has scrolled), only while on screen.
+  // Full frame rate while loading, during the intro and while the visitor scrolls or moves
+  // the mouse; after 1.5s of stillness the gentle idle motion runs at half rate to save power.
   useEffect(() => {
     if (!inView) return undefined
-    return onFrame((time) => advance(time / 1000))
-  }, [inView])
+    let activeUntil = performance.now() + 1500
+    let frame = 0
+    const wake = () => {
+      activeUntil = performance.now() + 1500
+    }
+    window.addEventListener('scroll', wake, { passive: true })
+    window.addEventListener('pointermove', wake, { passive: true })
+    const stop = onFrame((time) => {
+      frame += 1
+      const intro = introRef.current
+      const busy = intro == null || time - intro < 4000 || time < activeUntil
+      if (busy || frame % 2 === 0) advance(time / 1000)
+    })
+    return () => {
+      stop()
+      window.removeEventListener('scroll', wake)
+      window.removeEventListener('pointermove', wake)
+    }
+  }, [inView, introRef])
 
   return (
     <div className="chess-canvas" ref={containerRef}>
@@ -693,6 +778,10 @@ export default function Hero3DScene({ wrapperRef, heroStageRef, heroPinRef, dock
         frameloop="never"
         camera={{ position: [0, 0, CAMERA_Z], fov: CAMERA_FOV, near: 0.1, far: 100 }}
         gl={{ alpha: true, antialias: true, powerPreference: 'high-performance', stencil: false }}
+        onCreated={({ gl }) => {
+          // Checking shader errors makes the main thread wait for every compile — dev only.
+          gl.debug.checkShaderErrors = import.meta.env.DEV
+        }}
         fallback={<div className="hero-scene-fallback" aria-hidden="true" />}
       >
         <LayoutRig
@@ -707,6 +796,7 @@ export default function Hero3DScene({ wrapperRef, heroStageRef, heroPinRef, dock
         <PerformanceMonitor onDecline={() => setDpr((value) => Math.max(1, value - 0.5))} />
         <CursorSmoother cursorRef={cursorRef} />
         <Statue layoutRef={layoutRef} introRef={introRef} reducedMotion={reducedMotion} />
+        <MarkKing layoutRef={layoutRef} introRef={introRef} loaderRef={loaderRef} reducedMotion={reducedMotion} />
         {skills.map((skill, index) => (
           <ChessPiece
             key={skill.piece}
@@ -716,8 +806,6 @@ export default function Hero3DScene({ wrapperRef, heroStageRef, heroPinRef, dock
             layoutRef={layoutRef}
             cursorRef={cursorRef}
             labelRef={labelRefs?.[index]}
-            introRef={introRef}
-            loaderRef={loaderRef}
             reducedMotion={reducedMotion}
           />
         ))}

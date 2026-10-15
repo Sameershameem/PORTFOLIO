@@ -22,7 +22,7 @@ export default function Button({
     yellow:
       'bg-brand-yellow text-brand-ink hover:bg-brand-ink hover:text-white shadow-sm',
     ghost:
-      'bg-transparent text-brand-ink hover:text-brand-yellow underline underline-offset-4 p-0',
+      'bg-transparent text-brand-ink hover:text-brand-olive underline underline-offset-4 p-0',
   }
 
   const combinedClasses = `${baseClasses} ${variants[variant] || variants.primary} ${

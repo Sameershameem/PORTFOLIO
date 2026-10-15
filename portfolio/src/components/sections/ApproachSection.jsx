@@ -55,12 +55,12 @@ export default function ApproachSection() {
     >
       <div className="experience-section-head">
         <div>
-          <p className="experience-kicker">How I work</p>
-          <h2 className="experience-heading" id="approach-heading">From first thought to next iteration.</h2>
+          <p className="experience-kicker" data-reveal="up">How I work</p>
+          <h2 className="experience-heading" data-reveal="lines" id="approach-heading">From first thought to next iteration.</h2>
         </div>
-        <span className="approach-caption">A flexible process, built around the work.</span>
+        <span className="approach-caption" data-reveal="up">A flexible process, built around the work.</span>
       </div>
-      <ol className="approach-list">
+      <ol className="approach-list" data-reveal="stagger">
         {steps.map(([number, title, description]) => (
           <li className="approach-step" key={number}>
             <span className="approach-number">{number}</span>

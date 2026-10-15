@@ -44,9 +44,14 @@ export default function Work() {
 
         {/* Responsive Grid */}
         {filteredProjects.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
-            {filteredProjects.map((project) => (
-              <ProjectCard key={project.slug} project={project} />
+          <div
+            key={activeCategory}
+            className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14 sm:gap-x-10${activeCategory === 'All' ? '' : ' is-filtered'}`}
+          >
+            {filteredProjects.map((project, index) => (
+              <div key={project.slug} style={{ '--i': index }}>
+                <ProjectCard project={project} index={index} />
+              </div>
             ))}
           </div>
         ) : (
@@ -55,7 +60,7 @@ export default function Work() {
             <button
               type="button"
               onClick={() => setActiveCategory('All')}
-              className="mt-4 text-xs font-bold uppercase underline text-brand-yellow hover:text-brand-ink"
+              className="mt-4 text-xs font-bold uppercase underline text-brand-olive hover:text-brand-ink"
             >
               Reset filters
             </button>
