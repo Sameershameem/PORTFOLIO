@@ -96,6 +96,31 @@ export default function ProjectDetail() {
           </div>
         </div>
 
+        {project.media?.length > 0 && (
+          <div className="grid gap-6 mb-16">
+            {project.media.map((media) => (
+              media.type === 'video' ? (
+                <video
+                  key={media.src}
+                  className="w-full border border-neutral-200"
+                  src={media.src}
+                  poster={media.poster}
+                  controls
+                  playsInline
+                  aria-label={media.alt || `${project.title} video`}
+                />
+              ) : (
+                <img
+                  key={media.src}
+                  className="w-full border border-neutral-200"
+                  src={media.src}
+                  alt={media.alt || `${project.title} project`}
+                />
+              )
+            ))}
+          </div>
+        )}
+
         {/* Quantitative Highlights Strip */}
         {project.metrics && project.metrics.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 p-6 sm:p-8 bg-white border border-neutral-200 mb-16">
@@ -180,6 +205,27 @@ export default function ProjectDetail() {
               ))}
             </div>
           </section>
+
+          {project.links?.length > 0 && (
+            <section className="pt-8 border-t border-neutral-200">
+              <h3 className="text-sm font-bold text-brand-ink uppercase tracking-wider mb-4">
+                Project Links
+              </h3>
+              <div className="flex flex-wrap gap-4">
+                {project.links.map((link) => (
+                  <a
+                    key={link.url}
+                    href={link.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-sm font-bold underline underline-offset-4"
+                  >
+                    {link.label} ↗
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
 
         {/* Cyclical Next Project Navigation */}

@@ -1,19 +1,28 @@
 export default function AboutSection() {
   return (
-    <section className="portfolio-section" id="about" aria-labelledby="about-heading">
-      <p className="section-kicker">A little about me</p>
-      <h2 className="section-heading" id="about-heading">
-        Hello, I’m Sameer Shameem.
-      </h2>
-      <div className="about-copy">
+    <section className="experience-section about-experience" id="about" aria-labelledby="about-heading">
+      <div className="about-index" aria-hidden="true">S / S</div>
+      <div className="about-content">
+        <p className="experience-kicker">A little about me</p>
+        <h2 className="experience-heading" id="about-heading">
+          A marketer who thinks creatively. A creator who thinks strategically.
+        </h2>
+      </div>
+      <div className="experience-copy">
         <p>
-          I’m a marketing specialist, content creator, and performance marketer.
-          I bring strategy and creative thinking together to help brands communicate
-          clearly and reach the people they want to connect with.
+          I turn ideas into attention, attention into action, and ideas into
+          digital experiences.
         </p>
         <p>
-          From campaign planning to creating content, I enjoy making the complex
-          feel simple and building work around each brand’s goals.
+          I&apos;m Sameer Shameem — a marketing specialist, content creator,
+          performance marketer, and copywriter with a growing passion for vibe
+          coding. I enjoy connecting creative ideas with strategic thinking and
+          using modern AI-powered tools to bring digital experiences to life.
+        </p>
+        <p>
+          From developing a compelling campaign message to building an
+          interactive web experience, I like being involved in the process of
+          turning an idea into something real.
         </p>
       </div>
     </section>

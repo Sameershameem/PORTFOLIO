@@ -13,7 +13,7 @@ export default function ProcessSteps() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-        {processSteps.map((step, idx) => (
+        {processSteps.map((step) => (
           <div
             key={step.number}
             className="relative p-6 sm:p-7 bg-white border border-neutral-200/80 flex flex-col justify-between"
@@ -24,7 +24,7 @@ export default function ProcessSteps() {
                   {step.number}
                 </span>
                 <span className="text-xs text-brand-muted font-mono font-medium">
-                  Step 0{idx + 1}
+                  Step {step.number}
                 </span>
               </div>
               <h3 className="text-xl font-bold text-brand-ink mb-3 tracking-tight">

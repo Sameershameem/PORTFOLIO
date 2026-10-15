@@ -10,13 +10,13 @@ export default function Services() {
     <PageLayout>
       <SEO
         title="Services & Process"
-        description="Performance marketing, creative content frameworks, funnel optimization, and brand launches by Sameer Shameem."
+        description="Marketing strategy, content creation, performance marketing, copywriting, and vibe coding by Sameer Shameem."
       />
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
         <SectionTitle
-          kicker="What I Bring to the Table"
+          kicker="What I do"
           title="services."
-          intro="Strategic growth architecture, profitable paid media execution, and creative storytelling tailored for high-potential consumer brands."
+          intro="A mix of strategic thinking and hands-on creative work, from campaign planning and content to copy and digital experiences."
         />
 
         {/* Services Blocks Grid */}
@@ -31,11 +31,6 @@ export default function Services() {
                   <span className="text-xs font-mono font-bold tracking-widest text-neutral-800 bg-brand-yellow px-2.5 py-1">
                     {service.id}
                   </span>
-                  {service.startingFrom && (
-                    <span className="text-xs font-mono font-medium text-brand-muted">
-                      Starting from {service.startingFrom}
-                    </span>
-                  )}
                 </div>
 
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-brand-ink mb-4 tracking-tight group-hover:text-brand-yellow transition-colors">
@@ -77,10 +72,10 @@ export default function Services() {
 
         {/* Bottom CTA Block */}
         <CTA
-          kicker="Need a customized package?"
-          title="Let’s scope your requirements."
-          description="Every business has unique unit economics and creative needs. Let’s build a tailored sprint around your quarterly targets."
-          buttonText="Schedule a call"
+          kicker="Have a project in mind?"
+          title="Let’s talk it through."
+          description="Share the idea, the audience, and what you want to make happen. We can work out the right next step together."
+          buttonText="Start a conversation"
           buttonTo="/contact"
         />
       </div>

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import navLinks from '../../data/navLinks.js'
 import socials from '../../data/socials.js'
+import { contactEmail } from '../../data/contactDetails.js'
 
 export default function MobileMenu({ isOpen, onClose }) {
   // Lock body scroll and listen for Escape key
@@ -93,10 +94,10 @@ export default function MobileMenu({ isOpen, onClose }) {
           ))}
         </div>
         <a
-          href="tel:8630941563"
+          href={`mailto:${contactEmail}`}
           className="text-brand-yellow hover:underline"
         >
-          +91 8630941563
+          {contactEmail}
         </a>
       </div>
     </div>

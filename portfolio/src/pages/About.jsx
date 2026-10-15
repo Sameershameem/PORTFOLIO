@@ -12,7 +12,7 @@ export default function About() {
     <PageLayout>
       <SEO
         title="About Sameer"
-        description="Learn about Sameer Shameem: performance marketer, content creator, and digital growth strategist with $850k+ in managed ad spend."
+        description="Meet Sameer Shameem: marketing specialist, content creator, performance marketer, copywriter, and emerging vibe coder."
       />
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
         {/* Two-Column Editorial Hero */}
@@ -46,20 +46,16 @@ export default function About() {
 
             <div className="space-y-5 text-base sm:text-lg text-neutral-800 leading-relaxed font-normal">
               <p>
-                Hello, I’m <strong>Sameer Shameem</strong>. I’m a marketing specialist,
-                content creator, and performance marketer focused on scaling consumer brands
-                through creative direct-response advertising and structured organic narrative.
+                I&apos;m <strong>Sameer Shameem</strong> — a marketing specialist,
+                content creator, performance marketer, and copywriter with a growing
+                passion for vibe coding. I enjoy connecting creative ideas with
+                strategic thinking and using modern AI-powered tools to bring digital
+                experiences to life.
               </p>
               <p>
-                Over the past four years, I’ve managed over $850,000 in profitable ad spend across
-                Meta, Google, and TikTok. I believe that sustainable growth isn't built on vanity
-                metrics or quick hacks—it’s engineered at the intersection of tight unit economics
-                and emotionally compelling creative hooks.
-              </p>
-              <p>
-                Whether auditing stalled ad accounts, scripting high-converting UGC reels, or
-                launching new products from scratch, I strip away unnecessary friction and deliver
-                measurable bottom-line outcomes.
+                From developing a compelling campaign message to building an
+                interactive web experience, I like being involved in the process of
+                turning an idea into something real.
               </p>
             </div>
 
@@ -67,13 +63,6 @@ export default function About() {
             <div className="flex flex-wrap items-center gap-4 mt-8 pt-6 border-t border-neutral-200">
               <Button to="/contact" variant="primary">
                 Let’s talk ↗
-              </Button>
-              <Button
-                href="/cv.pdf"
-                variant="secondary"
-                download="Sameer_Shameem_CV.pdf"
-              >
-                Download CV ↓
               </Button>
             </div>
           </div>
@@ -104,8 +93,8 @@ export default function About() {
         {/* Closing CTA */}
         <CTA
           kicker="Interested in working together?"
-          title="Let’s create something memorable."
-          description="I’m currently taking on a limited number of growth marketing engagements and content creation advisory roles."
+          title="Have an idea? Let’s make it happen."
+          description="Whether it’s a campaign, a creative collaboration, or a digital product, let’s build something worth remembering."
           buttonText="Start a conversation"
           buttonTo="/contact"
         />

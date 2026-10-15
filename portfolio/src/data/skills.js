@@ -1,47 +1,56 @@
 const skills = [
   {
-    category: 'Performance & Paid Media',
+    category: 'Marketing Strategy',
     items: [
-      'Meta Ads Manager',
-      'Google Ads & PMax',
-      'TikTok Ads & Spark Ads',
-      'CAPI & Pixel Tracking',
-      'Creative Sandbox Testing',
-      'A/B Split Testing',
-      'Audience Segmentation',
+      'Audience research',
+      'Positioning',
+      'Campaign planning',
+      'Digital growth strategy',
     ],
   },
   {
-    category: 'Content & Creative Strategy',
+    category: 'Content Creation',
     items: [
-      'Short-Form Video Scripting',
-      'UGC Creator Seeding',
-      'Direct-Response Copywriting',
-      'Brand Narrative & Tone',
-      'Storyboarding & Hooks',
-      'Social Media Architecture',
-      'Email & SMS Retention (Klaviyo)',
+      'Creative concepts',
+      'Social media content',
+      'Short-form video',
+      'Visual storytelling',
     ],
   },
   {
-    category: 'Analytics, Tools & Tech',
+    category: 'Performance Marketing',
     items: [
-      'Triple Whale & Northbeam',
-      'Google Analytics 4 (GA4)',
-      'Looker Studio',
-      'Shopify Plus & Liquid Basics',
-      'Figma & Design Systems',
-      'CapCut Pro & Premiere',
-      'React & Tailwind CSS',
+      'Paid advertising',
+      'Audience targeting',
+      'Campaign optimization',
+      'Conversion-focused execution',
+    ],
+  },
+  {
+    category: 'Copywriting',
+    items: [
+      'Ad copy',
+      'Hooks and headlines',
+      'Brand messaging',
+      'Persuasive storytelling',
+    ],
+  },
+  {
+    category: 'Vibe Coding',
+    items: [
+      'AI-assisted development',
+      'Modern web technologies',
+      'Interactive prototypes',
+      'Digital experiences',
     ],
   },
 ]
 
 export const quickFacts = [
-  { label: 'Location', value: 'New Delhi, India (Global Remote)' },
-  { label: 'Experience', value: '4+ Years in Growth Marketing' },
-  { label: 'Ad Spend Managed', value: '$850K+ Profitable Spend' },
-  { label: 'Status', value: 'Available for Select Projects' },
+  { label: 'Focus', value: 'Strategy, storytelling, and performance' },
+  { label: 'Practice', value: 'Marketing, content, copy, and development' },
+  { label: 'Approach', value: 'Creative and analytical' },
+  { label: 'Case studies', value: 'Verified work to be added' },
 ]
 
 export default skills

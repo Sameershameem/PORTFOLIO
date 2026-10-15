@@ -3,7 +3,7 @@ import PageLayout from '../components/layout/PageLayout.jsx'
 import SectionTitle from '../components/ui/SectionTitle.jsx'
 import Toast from '../components/ui/Toast.jsx'
 import SEO from '../components/ui/SEO.jsx'
-import socials from '../data/socials.js'
+import { contactEmail, contactSocials } from '../data/contactDetails.js'
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -16,11 +16,11 @@ export default function Contact() {
 
   const [errors, setErrors] = useState({})
   const [status, setStatus] = useState('idle') // idle | submitting | success | error
+  const [formError, setFormError] = useState('')
   const [toastVisible, setToastVisible] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
 
-  const emailAddress = 'brandswaying@gmail.com'
-  const phoneNumber = '8630941563'
+  const emailAddress = contactEmail
 
   // Copy email to clipboard with Toast notification
   const handleCopyEmail = async () => {
@@ -30,7 +30,7 @@ export default function Contact() {
       setToastVisible(true)
       setTimeout(() => setToastVisible(false), 3000)
     } catch {
-      setToastMessage('Copied: brandswaying@gmail.com')
+      setToastMessage('Clipboard unavailable. Select the email address to copy it.')
       setToastVisible(true)
       setTimeout(() => setToastVisible(false), 3000)
     }
@@ -80,32 +80,33 @@ export default function Contact() {
       return
     }
 
-    setStatus('submitting')
     const formEndpoint = import.meta.env.VITE_FORM_ENDPOINT
+    if (!formEndpoint || formEndpoint.includes('your_form_id')) {
+      setFormError('The contact form is not connected yet. Please email the placeholder address below.')
+      setStatus('error')
+      return
+    }
 
+    setStatus('submitting')
     try {
-      if (formEndpoint && !formEndpoint.includes('your_form_id')) {
-        const response = await fetch(formEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-          },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            subject: formData.subject || 'Portfolio Inquiry',
-            message: formData.message,
-          }),
-        })
+      const response = await fetch(formEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject || 'Portfolio Inquiry',
+          message: formData.message,
+        }),
+      })
 
-        if (!response.ok) throw new Error('Submission failed')
-      } else {
-        // Simulated local fallback delay when no remote endpoint is configured
-        await new Promise((resolve) => setTimeout(resolve, 800))
-      }
+      if (!response.ok) throw new Error(`Submission failed (${response.status})`)
 
       setStatus('success')
+      setFormError('')
       setFormData({
         name: '',
         email: '',
@@ -113,8 +114,13 @@ export default function Contact() {
         message: '',
         _gotcha: '',
       })
-    } catch {
+    } catch (error) {
       setStatus('error')
+      setFormError(
+        error instanceof Error
+          ? `${error.message}. Please try again or email the address below.`
+          : 'We could not deliver your message. Please email the address below.',
+      )
     }
   }
 
@@ -128,7 +134,7 @@ export default function Contact() {
         <SectionTitle
           kicker="Direct Communication"
           title="contact."
-          intro="Have an ad account in need of optimization, a product ready for launch, or an inquiry regarding brand strategy? Let’s connect."
+          intro="Whether it’s a campaign, a creative collaboration, or a digital product, let’s build something worth remembering."
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 my-8 sm:my-12">
@@ -150,31 +156,7 @@ export default function Contact() {
                 </span>
               </button>
               <p className="text-xs text-brand-muted mt-1.5">
-                Replies typically within 24 business hours.
-              </p>
-            </div>
-
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-brand-muted mb-2">
-                Phone & Direct Call
-              </p>
-              <a
-                href={`tel:${phoneNumber}`}
-                className="text-lg sm:text-xl font-bold text-brand-ink hover:text-brand-yellow transition-colors block"
-              >
-                +91 {phoneNumber}
-              </a>
-            </div>
-
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-brand-muted mb-2">
-                Base Location
-              </p>
-              <p className="text-base sm:text-lg font-bold text-brand-ink">
-                New Delhi, India
-              </p>
-              <p className="text-xs text-brand-muted mt-1">
-                Collaborating with founders across US, UK, and APAC time zones.
+                Editable contact placeholder — replace this address before publishing.
               </p>
             </div>
 
@@ -183,15 +165,15 @@ export default function Contact() {
                 Connect on Social Channels
               </p>
               <div className="flex flex-wrap gap-3">
-                {socials.map((s) => (
+                {contactSocials.map((s) => (
                   <a
-                    key={s.name}
-                    href={s.url || s.href}
+                    key={s.label}
+                    href={s.href}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-neutral-200 text-xs font-bold uppercase tracking-wider text-brand-ink hover:border-brand-yellow hover:bg-neutral-50 transition-colors"
                   >
-                    <span>{s.name}</span>
+                    <span>{s.label}</span>
                     <span className="text-[10px]">↗</span>
                   </a>
                 ))}
@@ -215,8 +197,7 @@ export default function Contact() {
                   <h3 className="font-bold text-base">Message Sent Successfully!</h3>
                 </div>
                 <p className="text-sm text-green-800">
-                  Thank you for reaching out. Sameer will review your inquiry and get
-                  back to you within 24 hours.
+                  Your message was sent. Thank you for getting in touch.
                 </p>
                 <button
                   type="button"
@@ -233,18 +214,12 @@ export default function Contact() {
                 role="alert"
                 className="p-6 mb-8 bg-red-50 border border-red-200 text-red-900 rounded-none"
               >
-                <h3 className="font-bold text-base mb-1">Something went wrong</h3>
+                <h3 className="font-bold text-base mb-1">Message not sent</h3>
                 <p className="text-sm text-red-800">
-                  We could not deliver your message right now. Please reach out directly
-                  via email to{' '}
+                  {formError}{' '}
                   <a href={`mailto:${emailAddress}`} className="underline font-bold">
                     {emailAddress}
                   </a>{' '}
-                  or call{' '}
-                  <a href={`tel:${phoneNumber}`} className="underline font-bold">
-                    {phoneNumber}
-                  </a>
-                  .
                 </p>
               </div>
             )}

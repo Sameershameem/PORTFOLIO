@@ -8,7 +8,7 @@ export default function Timeline() {
           Career Trajectory
         </p>
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-brand-ink">
-          Experience & Milestones<span className="text-brand-yellow">.</span>
+          Experience<span className="text-brand-yellow">.</span>
         </h2>
       </div>
 

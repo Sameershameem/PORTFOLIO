@@ -1,4 +1,5 @@
 import SocialIcons from '../ui/SocialIcons.jsx'
+import { contactEmail } from '../../data/contactDetails.js'
 
 export default function Footer({ isInnerPage = false }) {
   const scrollToTop = () => {
@@ -18,7 +19,7 @@ export default function Footer({ isInnerPage = false }) {
           Back to top ↑
         </button>
       ) : (
-        <a href="tel:8630941563">Call: 8630941563</a>
+        <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
       )}
     </footer>
   )

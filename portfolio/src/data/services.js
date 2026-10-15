@@ -1,82 +1,91 @@
 const services = [
   {
     id: '01',
-    title: 'Performance Marketing',
+    title: 'Marketing Strategy',
     description:
-      'Data-driven paid media management across Meta, Google Ads, and TikTok. Built around deep audience segmentation, rapid creative iteration, and contribution-margin profitability.',
+      'Audience research, positioning, campaign planning, and digital growth strategies.',
     includes: [
-      'Full-funnel campaign architecture & setup',
-      'Continuous creative testing & hook analysis',
-      'Custom pixel, CAPI & conversion tracking setup',
-      'Weekly performance reporting & budget allocation',
+      'Audience and market research',
+      'Positioning and message direction',
+      'Campaign planning',
+      'Growth opportunities and measurement',
     ],
-    startingFrom: '$1,500 / month',
   },
   {
     id: '02',
-    title: 'Content Strategy & Creation',
+    title: 'Content Creation',
     description:
-      'Purpose-built content frameworks that turn casual viewers into loyal advocates. From scriptwriting high-converting UGC reels to editorial brand storytelling that resonates.',
+      'Creative concepts, social media content, reels, and visual storytelling.',
     includes: [
-      'Short-form video concepts, scripts & hooks',
-      'UGC creator seeding & whitelisting management',
-      'Visual aesthetic guidelines & asset curation',
-      'Content calendar scheduling & distribution',
+      'Creative concepts and content pillars',
+      'Social media content',
+      'Short-form video and reels',
+      'Visual storytelling',
     ],
-    startingFrom: '$1,200 / month',
   },
   {
     id: '03',
-    title: 'Growth & Funnel Optimization',
+    title: 'Performance Marketing',
     description:
-      'Holistic optimization of your customer acquisition pipeline. Identifying drop-offs, crafting persuasive landing pages, and building automated retention sequences that lift customer lifetime value.',
+      'Paid advertising, campaign optimization, audience targeting, and conversion-focused execution.',
     includes: [
-      'Landing page copy & CRO wireframing',
-      'Post-click offer structuring & A/B testing',
-      'Klaviyo email/SMS automated welcome & cart flows',
-      'Cohort analysis & LTV forecasting',
+      'Campaign planning and setup',
+      'Audience targeting',
+      'Creative and campaign optimization',
+      'Conversion-focused execution',
     ],
-    startingFrom: '$1,800 / project',
   },
   {
     id: '04',
-    title: 'Brand Launch & Campaign Direction',
+    title: 'Copywriting',
     description:
-      'Go-to-market roadmaps for new product launches, crowdfunding campaigns, or brand repositioning. Clear narrative direction that cuts through market noise.',
+      'Ad copy, hooks, headlines, brand messaging, and persuasive storytelling.',
     includes: [
-      'Pre-launch VIP reservation funnels & waitlists',
-      'Omnichannel launch timeline & creative assets',
-      'Press, influencer & community coordination',
-      'Post-launch scaling playbook for internal teams',
+      'Hooks and headlines',
+      'Ad and landing-page copy',
+      'Brand messaging',
+      'Persuasive storytelling',
     ],
-    startingFrom: '$2,500 / launch',
+  },
+  {
+    id: '05',
+    title: 'Vibe Coding',
+    description:
+      'AI-assisted development and modern web technologies to turn ideas into functional digital experiences.',
+    includes: [
+      'Idea-to-prototype exploration',
+      'AI-assisted development workflows',
+      'Modern web technologies',
+      'Responsive websites and digital experiences',
+    ],
   },
 ]
 
 export const processSteps = [
   {
     number: '01',
-    title: 'Discover',
-    description:
-      'Uncover unit economics, customer desires, competitive white spaces, and past marketing data bottlenecks.',
+    title: 'Understand',
+    description: 'Research the audience, goals, and problem.',
   },
   {
     number: '02',
-    title: 'Strategy',
-    description:
-      'Formulate creative angles, offer architecture, channel selection, and target KPI benchmarks tailored to your goals.',
+    title: 'Strategize',
+    description: 'Build a clear direction and creative concept.',
   },
   {
     number: '03',
-    title: 'Execute',
-    description:
-      'Launch campaigns, seed creative assets, configure tracking pixels, and deploy high-converting landing pages.',
+    title: 'Create',
+    description: 'Develop the content, campaign, copy, or digital experience.',
   },
   {
     number: '04',
-    title: 'Scale',
-    description:
-      'Double down on winning creative concepts, expand audience reach, optimize CAC, and maximize net profitability.',
+    title: 'Optimize',
+    description: 'Evaluate results, learn from the data, and improve.',
+  },
+  {
+    number: '05',
+    title: 'Build',
+    description: 'Use modern development tools and AI-assisted workflows to bring new ideas to life.',
   },
 ]
 

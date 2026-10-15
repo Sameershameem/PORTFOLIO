@@ -26,13 +26,13 @@ export default function Work() {
     <PageLayout>
       <SEO
         title="Work & Case Studies"
-        description="Explore paid acquisition funnels, creative strategies, and growth case studies by Sameer Shameem."
+        description="Selected work and case studies by Sameer Shameem. Project details will be added when ready to share."
       />
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
         <SectionTitle
-          kicker="Selected Case Studies"
+          kicker="Work in progress"
           title="work."
-          intro="A curated collection of paid acquisition funnels, creative strategies, and viral narrative campaigns that drove real business growth."
+          intro="A space for real projects, clear thinking, and verified outcomes. Case-study details will be added as they are ready to share."
         />
 
         {/* Filter Chips */}
@@ -64,10 +64,10 @@ export default function Work() {
 
         {/* Closing CTA */}
         <CTA
-          kicker="Ready for measurable growth?"
-          title="Let’s scale your brand."
-          description="Looking to unlock higher ROAS, lower CPA, or build an authentic organic presence? Let's analyze your current funnel."
-          buttonText="Request an audit"
+          kicker="Have an idea?"
+          title="Let’s make it happen."
+          description="Tell me about a campaign, a creative collaboration, or a digital product you want to bring to life."
+          buttonText="Start a conversation"
           buttonTo="/contact"
         />
       </div>
