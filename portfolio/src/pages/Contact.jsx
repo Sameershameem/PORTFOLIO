@@ -3,6 +3,7 @@ import PageLayout from '../components/layout/PageLayout.jsx'
 import SectionTitle from '../components/ui/SectionTitle.jsx'
 import Toast from '../components/ui/Toast.jsx'
 import SEO from '../components/ui/SEO.jsx'
+import { pageMeta } from '../data/seo.js'
 import { contactEmail, contactSocials } from '../data/contactDetails.js'
 
 export default function Contact() {
@@ -127,8 +128,7 @@ export default function Contact() {
   return (
     <PageLayout>
       <SEO
-        title="Contact Sameer"
-        description="Get in touch with Sameer Shameem for performance marketing, creative strategy, or media buying advisory."
+        {...pageMeta['/contact']}
       />
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
         <SectionTitle

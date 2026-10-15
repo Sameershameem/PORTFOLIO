@@ -1,20 +1,19 @@
 import Footer from '../components/layout/Footer.jsx'
 import Navbar from '../components/layout/Navbar.jsx'
-import Hero from '../components/sections/Hero.jsx'
-import AboutSection from '../components/sections/AboutSection.jsx'
+import ChessExperience from '../components/sections/ChessExperience.jsx'
 import ApproachSection from '../components/sections/ApproachSection.jsx'
 import ContactSection from '../components/sections/ContactSection.jsx'
 import ServicesSection from '../components/sections/ServicesSection.jsx'
 import SelectedWorkSection from '../components/sections/SelectedWorkSection.jsx'
 import SEO from '../components/ui/SEO.jsx'
+import { pageMeta } from '../data/seo.js'
 import '../styles/portfolio-experience.css'
 
 export default function Home() {
   return (
     <div className="page-shell experience-shell">
       <SEO
-        title="Sameer Shameem — Marketing, Content & Digital Experiences"
-        description="Sameer Shameem is a marketing specialist, content creator, performance marketer, copywriter, and emerging vibe coder. He blends strategy, storytelling, and AI-assisted development to turn ideas into digital experiences."
+        {...pageMeta['/']}
         structuredData={{
           '@context': 'https://schema.org',
           '@type': 'ProfilePage',
@@ -36,11 +35,10 @@ export default function Home() {
       />
       <Navbar />
       <main>
-        <Hero />
+        <ChessExperience />
         <ServicesSection />
         <SelectedWorkSection />
         <ApproachSection />
-        <AboutSection />
         <ContactSection />
       </main>
       <Footer isInnerPage />

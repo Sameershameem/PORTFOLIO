@@ -1,9 +1,10 @@
 import SocialIcons from '../ui/SocialIcons.jsx'
 import { contactEmail } from '../../data/contactDetails.js'
+import { scrollToTarget } from '../../lib/smoothScroll.js'
 
 export default function Footer({ isInnerPage = false }) {
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    scrollToTarget(0)
   }
 
   return (

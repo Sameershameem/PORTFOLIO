@@ -3,14 +3,14 @@ import SectionTitle from '../components/ui/SectionTitle.jsx'
 import ProcessSteps from '../components/sections/ProcessSteps.jsx'
 import CTA from '../components/sections/CTA.jsx'
 import SEO from '../components/ui/SEO.jsx'
+import { pageMeta } from '../data/seo.js'
 import services from '../data/services.js'
 
 export default function Services() {
   return (
     <PageLayout>
       <SEO
-        title="Services & Process"
-        description="Marketing strategy, content creation, performance marketing, copywriting, and vibe coding by Sameer Shameem."
+        {...pageMeta['/services']}
       />
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
         <SectionTitle

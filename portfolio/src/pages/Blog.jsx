@@ -3,14 +3,14 @@ import PageLayout from '../components/layout/PageLayout.jsx'
 import SectionTitle from '../components/ui/SectionTitle.jsx'
 import CTA from '../components/sections/CTA.jsx'
 import SEO from '../components/ui/SEO.jsx'
+import { pageMeta } from '../data/seo.js'
 import posts from '../data/posts.js'
 
 export default function Blog() {
   return (
     <PageLayout>
       <SEO
-        title="Journal & Playbooks"
-        description="Notes on high-converting creative frameworks, contribution margin economics, and scaling consumer brands by Sameer Shameem."
+        {...pageMeta['/blog']}
       />
       <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
         <SectionTitle

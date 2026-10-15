@@ -1,6 +1,7 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import useScrollToTop from './hooks/useScrollToTop.js'
+import { startSmoothScroll, stopSmoothScroll } from './lib/smoothScroll.js'
 
 const Home = lazy(() => import('./pages/Home.jsx'))
 const Work = lazy(() => import('./pages/Work.jsx'))
@@ -14,6 +15,11 @@ const NotFound = lazy(() => import('./pages/NotFound.jsx'))
 
 export default function App() {
   useScrollToTop()
+
+  useEffect(() => {
+    startSmoothScroll()
+    return stopSmoothScroll
+  }, [])
 
   return (
     <Suspense

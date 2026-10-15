@@ -5,7 +5,7 @@ import SEO from '../components/ui/SEO.jsx'
 export default function NotFound() {
   return (
     <PageLayout>
-      <SEO title="404 — Page Not Found" description="The page you were looking for does not exist." />
+      <SEO title="404 — Page Not Found" description="The page you were looking for does not exist." noindex />
       <div className="relative flex flex-col items-center justify-center min-h-[60vh] text-center px-4 overflow-hidden my-auto">
         {/* Yellow Circle Motif */}
         <div

@@ -4,15 +4,15 @@ import SkillsGrid from '../components/sections/SkillsGrid.jsx'
 import Timeline from '../components/sections/Timeline.jsx'
 import CTA from '../components/sections/CTA.jsx'
 import SEO from '../components/ui/SEO.jsx'
-import portrait from '../assets/images/hero-portrait.png'
+import { pageMeta } from '../data/seo.js'
+import portrait from '../assets/images/hero-portrait.webp'
 import { quickFacts } from '../data/skills.js'
 
 export default function About() {
   return (
     <PageLayout>
       <SEO
-        title="About Sameer"
-        description="Meet Sameer Shameem: marketing specialist, content creator, performance marketer, copywriter, and emerging vibe coder."
+        {...pageMeta['/about']}
       />
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
         {/* Two-Column Editorial Hero */}
@@ -29,6 +29,9 @@ export default function About() {
               <img
                 src={portrait}
                 alt="Sameer Shameem portrait"
+                width="768"
+                height="768"
+                decoding="async"
                 className="absolute bottom-0 w-[92%] h-auto max-h-[110%] object-contain object-bottom filter grayscale contrast-110 drop-shadow-md pointer-events-none select-none"
               />
             </div>

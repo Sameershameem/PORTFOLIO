@@ -5,6 +5,7 @@ import FilterChips from '../components/ui/FilterChips.jsx'
 import ProjectCard from '../components/ui/ProjectCard.jsx'
 import CTA from '../components/sections/CTA.jsx'
 import SEO from '../components/ui/SEO.jsx'
+import { pageMeta } from '../data/seo.js'
 import projects from '../data/projects.js'
 
 export default function Work() {
@@ -25,8 +26,7 @@ export default function Work() {
   return (
     <PageLayout>
       <SEO
-        title="Work & Case Studies"
-        description="Selected work and case studies by Sameer Shameem. Project details will be added when ready to share."
+        {...pageMeta['/work']}
       />
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
         <SectionTitle

@@ -31,6 +31,8 @@ function ProjectMedia({ project, index }) {
       className="work-art-media"
       src={media.src}
       alt={media.alt || `${project.title} project`}
+      loading="lazy"
+      decoding="async"
     />
   )
 }

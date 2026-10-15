@@ -104,6 +104,7 @@ export default function ProjectDetail() {
                   key={media.src}
                   className="w-full border border-neutral-200"
                   src={media.src}
+                  preload="metadata"
                   poster={media.poster}
                   controls
                   playsInline
@@ -114,6 +115,8 @@ export default function ProjectDetail() {
                   key={media.src}
                   className="w-full border border-neutral-200"
                   src={media.src}
+                  loading="lazy"
+                  decoding="async"
                   alt={media.alt || `${project.title} project`}
                 />
               )

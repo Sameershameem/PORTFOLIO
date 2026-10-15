@@ -11,7 +11,7 @@ export default function SocialIcons() {
           target="_blank"
           rel="noreferrer"
         >
-          <img src={social.icon} alt={social.name} />
+          <img src={social.icon} alt={social.name} width="20" height="20" loading="lazy" />
         </a>
       ))}
     </nav>

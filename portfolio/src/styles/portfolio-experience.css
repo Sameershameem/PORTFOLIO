@@ -6,16 +6,127 @@
   --experience-accent: #c7ec65;
 }
 
-.hero-scene-placeholder {
+/* Static statue shown instantly (LCP) until the WebGL scene is ready. */
+/* Must match the statue footprint in Hero3DScene's LayoutRig (clears the 88px header). */
+.hero-statue-poster {
   position: absolute;
-  top: 47%;
+  z-index: 2;
+  top: 96px;
   left: 50%;
-  width: min(36vw, 410px);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%);
+  width: auto;
+  max-width: none;
+  height: min(calc(100% - 176px), 62vw);
+  transform: translateX(-50%);
+  pointer-events: none;
+  user-select: none;
+  transition: opacity .6s ease;
+}
+
+/* Hero + skills share one sticky WebGL layer that takes no space in the flow. */
+.chess-experience {
+  position: relative;
+}
+
+.chess-stage {
+  position: sticky;
+  z-index: 6;
+  top: 0;
+  height: 100svh;
+  margin-bottom: -100svh;
+  pointer-events: none;
+}
+
+/* While the intro loader is up, the WebGL layer (its turning king) sits above it. */
+.chess-experience[data-loading] .chess-stage {
+  z-index: 110;
+}
+
+.chess-canvas {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity .6s ease;
+}
+
+.chess-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.chess-experience[data-scene-ready] .chess-canvas {
+  opacity: 1;
+}
+
+.chess-experience[data-scene-ready] .hero-statue-poster,
+.chess-experience:not([data-intro]) .hero-statue-poster {
+  opacity: 0;
+}
+
+/* Skill labels follow their chess piece; Hero3DScene writes transform + opacity each frame. */
+.hero-skill-tags {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+}
+
+.hero-skill-tag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 11px 6px 7px;
+  border: 1px solid var(--experience-line);
+  border-radius: 999px;
+  background: rgba(244, 243, 239, .86);
+  backdrop-filter: blur(6px);
+  color: var(--experience-ink);
+  font-family: "DM Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.hero-skill-index {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 45%, #d6d5cf 0 22%, #b9bab5 23% 32%, transparent 64%);
-  opacity: .62;
+  background: var(--experience-accent);
+  font-size: 9px;
+  letter-spacing: 0;
+}
+
+@media (max-width: 900px) {
+  .hero-skill-tag {
+    gap: 5px;
+    padding: 4px 8px 4px 4px;
+    font-size: 8px;
+  }
+
+  .hero-skill-index {
+    width: 15px;
+    height: 15px;
+    font-size: 7px;
+  }
+
+  .hero-statue-poster {
+    top: 44%;
+    height: min(58%, 95vw);
+    transform: translate(-50%, -50%);
+  }
 }
 
 html {
@@ -96,19 +207,6 @@ body {
   min-height: 600px;
   overflow: hidden;
   isolation: isolate;
-}
-
-.hero-scene {
-  position: absolute;
-  z-index: 2;
-  inset: 0;
-  pointer-events: none;
-}
-
-.hero-scene canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
 }
 
 .hero-scene-fallback {
@@ -349,8 +447,8 @@ body {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   margin-top: clamp(48px, 7vw, 92px);
-  border-top: 1px solid var(--experience-line);
-  border-left: 1px solid var(--experience-line);
+  /* Cards draw all four borders and overlap by 1px, so any row layout stays seamless. */
+  padding: 1px 0 0 1px;
 }
 
 .capability-card {
@@ -359,9 +457,9 @@ body {
   min-height: 245px;
   grid-column: span 2;
   flex-direction: column;
+  margin: -1px 0 0 -1px;
   padding: 26px 27px 30px;
-  border-right: 1px solid var(--experience-line);
-  border-bottom: 1px solid var(--experience-line);
+  border: 1px solid var(--experience-line);
   overflow: hidden;
   transition: background-color .28s ease;
 }
@@ -1192,5 +1290,180 @@ body {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
+  }
+}
+
+/* ── Skill board: one panel per chess piece; the 3D piece docks into .skill-dock ── */
+.skill-board {
+  position: relative;
+  width: min(1440px, 100%);
+  margin: 0 auto;
+  padding: 0 clamp(24px, 8vw, 128px) clamp(64px, 8vw, 120px);
+}
+
+.skill-board-head {
+  padding-block: clamp(72px, 9vw, 128px) clamp(24px, 4vw, 48px);
+  border-top: 1px solid var(--experience-line);
+}
+
+.skill-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(32px, 6vw, 96px);
+  min-height: 92svh;
+  padding-block: clamp(40px, 6vw, 80px);
+  border-bottom: 1px solid var(--experience-line);
+  scroll-margin-top: 24px;
+}
+
+.skill-panel:nth-of-type(even) .skill-stage {
+  order: 2;
+}
+
+.skill-stage {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 1;
+  max-height: 72svh;
+  justify-self: center;
+  overflow: hidden;
+  border: 1px solid var(--experience-line);
+  background:
+    radial-gradient(circle at 50% 38%, rgba(255, 255, 255, .95) 0, rgba(255, 255, 255, 0) 62%),
+    linear-gradient(180deg, #ecebe6 0%, #e2e1db 100%);
+}
+
+.skill-stage-number {
+  position: absolute;
+  top: -.08em;
+  left: .04em;
+  color: rgba(29, 30, 27, .06);
+  font-size: clamp(140px, 20vw, 300px);
+  font-weight: 800;
+  letter-spacing: -.08em;
+  line-height: 1;
+  user-select: none;
+}
+
+.skill-dock {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  width: 46%;
+  height: 66%;
+  transform: translateX(-50%);
+}
+
+.skill-plinth {
+  position: absolute;
+  bottom: 14%;
+  left: 50%;
+  width: 46%;
+  height: 9%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(29, 30, 27, .28), rgba(29, 30, 27, 0));
+}
+
+.skill-stage-piece {
+  position: absolute;
+  bottom: 16px;
+  left: 18px;
+  color: var(--experience-muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.skill-copy {
+  max-width: 520px;
+}
+
+.skill-kicker {
+  margin: 0 0 18px;
+  color: var(--experience-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .18em;
+}
+
+.skill-kicker span {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  margin-right: 4px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--experience-accent);
+  color: var(--experience-ink);
+  letter-spacing: 0;
+}
+
+.skill-copy h3 {
+  margin: 0;
+  font-size: clamp(36px, 5vw, 68px);
+  font-weight: 600;
+  line-height: .98;
+  letter-spacing: -.06em;
+}
+
+.skill-tagline {
+  margin: 18px 0 0;
+  font-size: clamp(17px, 1.6vw, 21px);
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+.skill-description {
+  margin: 14px 0 0;
+  color: var(--experience-muted);
+  font-family: "DM Sans", sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.skill-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skill-points li {
+  padding: 8px 13px;
+  border: 1px solid var(--experience-line);
+  border-radius: 999px;
+  font-family: "DM Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .skill-panel {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    gap: 28px;
+    padding-block: 56px;
+  }
+
+  .skill-panel:nth-of-type(even) .skill-stage {
+    order: 0;
+  }
+
+  .skill-stage {
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 700px) {
+  /* leave room for the chess-piece rail on the right edge */
+  .chess-experience .about-experience,
+  .chess-experience .skill-board {
+    padding-right: 44px;
   }
 }
